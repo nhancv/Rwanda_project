@@ -26,3 +26,6 @@ build
 *.class
 *target
 *overlays
+
+.bzr
+.bzrignore
