@@ -13,11 +13,12 @@
       <param name="page">/dhis-web-reporting/index.vm</param>
       <param name="menu">/dhis-web-reporting/menu.vm</param>
     </action>
-    
+
     <!-- Document -->
 
     <action name="saveDocument" class="org.hisp.dhis.reporting.document.action.SaveDocumentAction">
       <result name="success" type="redirect">displayViewDocumentForm.action</result>
+      <result name="apiCall" type="velocity-json">/dhis-web-commons/ajax/jsonResponseSuccess.vm</result>
       <interceptor-ref name="fileUploadStack" />
       <param name="anyAuthorities">F_DOCUMENT_PUBLIC_ADD,F_DOCUMENT_PRIVATE_ADD</param>
     </action>

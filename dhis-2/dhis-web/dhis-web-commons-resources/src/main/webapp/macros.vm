@@ -2,7 +2,7 @@
 #macro( objectList $objectName $objects )
     <table class="objectListTable">
         <col>
-        <col width="80">    
+        <col width="80">
         <tr>
             <td class="filter"><label for="filter">$i18n.getString( "filter_by_name" )</label>: <form action="none" onsubmit="filterValues(this.firstChild.firstChild.value);return false"><div><input id="filter" type="text"><input type="submit" value="$i18n.getString( 'filter' )"></div></form></td>
             <td style="text-align:right"><input type="button" value="$i18n.getString( 'add_new' )" onclick="window.location.href='showAdd${objectName}Form.action'"></td>
@@ -95,7 +95,7 @@
 	#parse( "/dhis-web-commons/oust/selectionTreeMultipleSelect.vm" )
 #else
 	#parse( "/dhis-web-commons/oust/selectionTreeSingleSelect.vm" )
-#end	
+#end
 #end
 
 #macro( filterDiv $action )
@@ -209,7 +209,7 @@ jQuery(function() {
 </tr>
 #end
 
-#macro( trIntegerInput $args ) 
+#macro( trIntegerInput $args )
 #if( "$!args.name" == "" )
 	#set( $name = $!args.id )
 #else
@@ -303,20 +303,122 @@ jQuery(function() {
 #else
 	#set( $name = $!args.name )
 #end
+
+#set( $att_value = $!args.value )
+#set( $index = $att_value.indexOf('***'))
+#if( $index > 0 )
+    #set ($att_id = $att_value.substring(0,$index))
+    #set ($index = $index + 3)
+    #set ($att_uid = $att_value.substring($index))
+#else
+    #set ($att_id = "")
+    #set ($att_uid = "")
+#end
+
  <script type="text/javascript">
   $(function() {
-     $("input:file").change(function (){
-       var fileName = $(this).val();
-	   console.log($!args.id);
-	   console.log(fileName);
+     $("#$!{args.id}_progress").css({'height': '3px'});;
+     $("#$!{args.id}_progress").progressbar();
+     $("#$!{args.id}_progress").hide();
+
+     $("#$!{args.id}_download").click(function() {
+       var uid = $("#$!{args.id}").data("uid");
+       if(uid != null && uid != undefined && uid.length > 0 && uid.trim()) {
+         window.open(
+             '../api/documents/' + uid + '/data',
+             '_blank'
+         );
+       }
+     });
+     $("#$!{args.id}_remove").click(function() {
+       let att_id = $("#$!{args.id}").data("id");
+       if(att_id != null && att_id != undefined && att_id != "") {
+         var form_data = {
+           id: att_id
+         };
+         $("#$!{args.id}_progress").show();
+         $.ajax({
+           type: 'POST',
+           url: "../dhis-web-reporting/removeDocument.action",
+           data: form_data,
+           dataType: 'json',
+           cache: false,
+           success: function(data) {
+             $("#$!{args.id}_progress").hide();
+             $("#$!{args.id}").val('');
+             $("#$!{args.id}").data("id", "");
+             $("#$!{args.id}").data("uid", "");
+             console.log(data);
+           },
+           error: function(error) {
+             $("#$!{args.id}_progress").hide();
+             console.log(error);
+           }
+         })
+       }
+     });
+
+     $("#$!args.id").change(function (){
+       var file_att_id = $(this).attr("id");
+       var file_name = $(this)[0].files[0].name;
+       var file_path = $(this).val();
+       let id = $("#$!{args.id}").data("id");
+
+       var form_data = new FormData();
+       form_data.append('id', id);
+       form_data.append('name', file_att_id + "_" + file_name);
+       form_data.append('external', false);
+       form_data.append('attachment', true);
+       form_data.append('upload', $(this)[0].files[0]);
+       form_data.append('url', file_name);
+       form_data.append('apiCall', true);
+       $("#$!{args.id}_progress").show();
+       $.ajax({
+         type: 'POST',
+         url: "../dhis-web-reporting/saveDocument.action",
+         data: form_data,
+         cache: false,
+         contentType: false,
+         processData: false,
+         success: function(data) {
+           $("#$!{args.id}_progress").hide();
+           if(typeof data !== 'string') {
+             var message = JSON.parse(data.message);
+             $("#$!{args.id}").data("id", message.id);
+             $("#$!{args.id}").data("uid", message.uid);
+           }
+           console.log(data);
+         },
+         error: function(error) {
+           $("#$!{args.id}_progress").hide();
+           console.log(error);
+         },
+         xhr: function() {
+           myXhr = $.ajaxSettings.xhr();
+           if(myXhr.upload){
+             myXhr.upload.addEventListener('progress',function(evt){
+               if (evt.lengthComputable) {
+                 var percentComplete = (evt.loaded / evt.total) * 100;
+                 $("#$!{args.id}_progress").progressbar( "option", "value", percentComplete );
+               }
+             }, false);
+           } else {
+             console.log("Uploadress is not supported.");
+           }
+           return myXhr;
+         }
+       })
      });
   });
 </script>
 <tr>
 	<td style="width: 200px;"><label for="$!args.id">$!args.text #if($args.mandatory)<em title="$i18n.getString( 'required' )" class="required">*</em>#end</label></td>
 	<td>
-		<input type="file" id="$!args.id" name="$!name" value="$!args.value" class="{validate:{required:$args.mandatory}}" />
-	</td>
+      <input type="file" id="$!args.id" name="$!name" data-id="$!att_id" data-uid="$!att_uid" value="$!args.value" class="{validate:{required:$args.mandatory}}"/>
+      <button id="$!{args.id}_download" type="button">↓</button>
+      <button id="$!{args.id}_remove" type="button">X</button>
+      <div style="height=3px" id="$!{args.id}_progress"></div>
+    </td>
 </tr>
 #end
 
@@ -332,7 +434,19 @@ jQuery.each(attributes, function(i, item) {
 
 	json.id = jqItem.attr("id").split("_")[1];
 
-	if( jqItem.is("input[type='text']") || jqItem.is("textarea") )
+    if(jqItem.is("input[type='file']"))
+    {
+        var item_uid = jqItem.data("uid");
+        if(item_uid != null && item_uid != undefined && item_uid.length > 0 && item_uid.trim())
+        {
+            json.value = jqItem.data("id") + "***" + jqItem.data("uid");
+        }
+        else
+        {
+            json.value = "***";
+        }
+    }
+	else if( jqItem.is("input[type='text']") || jqItem.is("textarea") )
 	{
 		json.value = jqItem.val();
 	}
@@ -377,9 +491,9 @@ jQuery.each(attributes, function(i, item) {
     	#elseif( $valueType == "LONG_TEXT" )
     		#trTextInput( { "text": $text, "id": "attribute_$id", "mandatory": $mandatory, "value": $value } )
     	#elseif( $valueType == "BOOLEAN" )
-    		#trBooleanSelectInput( { "text": $text, "id": "attribute_$id", "mandatory": $mandatory, "value": $value } )	
+    		#trBooleanSelectInput( { "text": $text, "id": "attribute_$id", "mandatory": $mandatory, "value": $value } )
     	#elseif( $valueType == "DATE" )
-    		#trDateInput( { "text": $text, "id": "attribute_$id", "mandatory": $mandatory, "value": $value } )	
+    		#trDateInput( { "text": $text, "id": "attribute_$id", "mandatory": $mandatory, "value": $value } )
     	#elseif( $valueType == "NUMBER" )
     		#trNumberInput( { "text": $text, "id": "attribute_$id", "mandatory": $mandatory, "value": $value } )
     	#elseif( $valueType == "INTEGER" )
@@ -389,9 +503,9 @@ jQuery.each(attributes, function(i, item) {
     	#elseif( $valueType == "INTEGER_NEGATIVE" )
     		#trNegativeIntegerInput( { "text": $text, "id": "attribute_$id", "mandatory": $mandatory, "value": $value } )
 		#elseif( $valueType == "FILE_RESOURCE" )
-    		#trFileInput( { "text": $text, "id": "attribute_$id", "mandatory": $mandatory, "value": $value } )	
+    		#trFileInput( { "text": $text, "id": "attribute_$id", "mandatory": $mandatory, "value": $value } )
 		#end
-		
+
 	#end
 </table>
 </div>

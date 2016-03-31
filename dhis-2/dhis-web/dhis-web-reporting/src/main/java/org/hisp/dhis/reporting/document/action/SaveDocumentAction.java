@@ -1,5 +1,6 @@
 package org.hisp.dhis.reporting.document.action;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opensymphony.xwork2.Action;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -10,7 +11,12 @@ import org.hisp.dhis.external.location.LocationManager;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /*
  * Copyright (c) 2004-2016, University of Oslo
@@ -140,6 +146,20 @@ public class SaveDocumentAction
         this.jsonAttributeValues = jsonAttributeValues;
     }
 
+    private boolean apiCall;
+
+    public void setApiCall( boolean apiCall )
+    {
+        this.apiCall = apiCall;
+    }
+
+    private String message;
+
+    public String getMessage()
+    {
+        return message;
+    }
+
     // -------------------------------------------------------------------------
     // Action implementation
     // -------------------------------------------------------------------------
@@ -148,26 +168,43 @@ public class SaveDocumentAction
     public String execute()
         throws Exception
     {
+        log.info( "apiCall: " + apiCall );
+
         Document document = new Document();
 
         if ( id != null )
         {
             document = documentService.getDocument( id );
+            File oldFile = locationManager.getFileForReading( document.getUrl(), DocumentService.DIR );
+
+            if ( oldFile.delete() )
+            {
+                log.info( "Document " + document.getUrl() + " successfully deleted" );
+            }
+            else
+            {
+                log.warn( "Document " + document.getUrl() + " could not be deleted" );
+            }
         }
 
         if ( !external && file != null )
         {
             log.info( "Uploading file: '" + fileName + "', content-type: '" + contentType + "'" );
+            fileName = UUID.randomUUID().toString() + ((fileName.split( "\\." ).length > 1) ? ("." + fileName.split( "\\." )[fileName.split( "\\." ).length - 1]) : "");
+            log.info( "New file name: " + fileName );
 
             File destination = locationManager.getFileForWriting( fileName, DocumentService.DIR );
 
             log.info( "Destination: '" + destination.getAbsolutePath() + "'" );
 
-            boolean fileMoved = file.renameTo( destination );
-
-            if ( !fileMoved )
+            try
+            {
+                Files.move( file.toPath(), destination.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING );
+            }
+            catch ( IOException ex )
             {
                 throw new RuntimeException( "File could not be moved to: '" + destination.getAbsolutePath() + "'" );
+
             }
 
             url = fileName;
@@ -198,9 +235,18 @@ public class SaveDocumentAction
         if ( jsonAttributeValues != null )
         {
             attributeService.updateAttributeValues( document, jsonAttributeValues );
+            documentService.saveDocument( document );
         }
 
-        documentService.saveDocument( document );
+        if ( apiCall )
+        {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> userData = new HashMap<>();
+            userData.put( "id", document.getId() );
+            userData.put( "uid", document.getUid() );
+            message = mapper.writeValueAsString( userData );
+            return "apiCall";
+        }
 
         return SUCCESS;
     }
