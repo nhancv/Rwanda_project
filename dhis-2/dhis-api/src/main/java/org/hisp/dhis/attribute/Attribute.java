@@ -59,6 +59,7 @@ import org.hisp.dhis.trackedentity.TrackedEntity;
 import org.hisp.dhis.trackedentity.TrackedEntityAttribute;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserGroup;
+import org.hisp.dhis.resultsframework.Project;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,6 +111,8 @@ public class Attribute
     private boolean optionAttribute;
 
     private boolean optionSetAttribute;
+    
+    private boolean projectAttribute;
 
     private boolean mandatory;
 
@@ -136,7 +139,7 @@ public class Attribute
         return 31 * super.hashCode() + Objects.hash( valueType, dataElementAttribute, dataElementGroupAttribute, indicatorAttribute, indicatorGroupAttribute,
             dataSetAttribute, organisationUnitAttribute, organisationUnitGroupAttribute, organisationUnitGroupSetAttribute, userAttribute, userGroupAttribute,
             programAttribute, programStageAttribute, trackedEntityAttribute, trackedEntityAttributeAttribute, categoryOptionAttribute, categoryOptionGroupAttribute,
-            mandatory, unique, optionSet, optionAttribute );
+            mandatory, unique, optionSet, optionAttribute, projectAttribute );
     }
 
     @Override
@@ -175,6 +178,7 @@ public class Attribute
             && Objects.equals( this.categoryOptionAttribute, other.categoryOptionAttribute )
             && Objects.equals( this.categoryOptionGroupAttribute, other.categoryOptionGroupAttribute )
             && Objects.equals( this.optionAttribute, other.optionAttribute )
+            && Objects.equals( this.projectAttribute, other.projectAttribute )
             && Objects.equals( this.mandatory, other.mandatory )
             && Objects.equals( this.unique, other.unique )
             && Objects.equals( this.optionSet, other.optionSet );
@@ -469,6 +473,19 @@ public class Attribute
     @JsonProperty
     @JsonView( { DetailedView.class, ExportView.class } )
     @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
+    public boolean isProjectAttribute()
+    {
+        return projectAttribute;
+    }
+
+    public void setProjectAttribute( boolean projectAttribute )
+    {
+        this.projectAttribute = projectAttribute;
+    }
+
+    @JsonProperty
+    @JsonView( { DetailedView.class, ExportView.class } )
+    @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
     public OptionSet getOptionSet()
     {
         return optionSet;
@@ -516,6 +533,7 @@ public class Attribute
         if ( documentAttribute ) klasses.add( Document.class );
         if ( optionAttribute ) klasses.add( Option.class );
         if ( optionSetAttribute ) klasses.add( OptionSet.class );
+        if ( projectAttribute ) klasses.add( Project.class );
 
         return klasses;
     }
@@ -548,6 +566,7 @@ public class Attribute
             documentAttribute = attribute.isDocumentAttribute();
             optionAttribute = attribute.isOptionAttribute();
             optionSetAttribute = attribute.isOptionSetAttribute();
+            projectAttribute = attribute.isProjectAttribute();
             mandatory = attribute.isMandatory();
 
             if ( mergeMode.isReplace() )
@@ -585,6 +604,7 @@ public class Attribute
             .add( "trackedEntityAttributeAttribute", trackedEntityAttributeAttribute )
             .add( "categoryOptionAttribute", categoryOptionAttribute )
             .add( "categoryOptionGroupAttribute", categoryOptionGroupAttribute )
+            .add( "projectAttribute", projectAttribute )
             .add( "mandatory", mandatory )
             .toString();
     }

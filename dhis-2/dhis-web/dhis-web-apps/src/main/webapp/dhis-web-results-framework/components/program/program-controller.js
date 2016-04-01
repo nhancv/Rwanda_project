@@ -138,8 +138,15 @@ resultsFramework.controller('ProgramController',
             return false;
         }
         
+        var pr = angular.copy($scope.model.selectedProgram);
+        var newSps = [];
+        angular.forEach(pr.subProgramms, function(sp){
+            newSps.push({id: sp.id, programm:{id: pr.id}});
+        });        
+        pr.subProgramms = newSps;
+        
         //form is valid, continue with adding
-        ProgramFactory.update($scope.model.selectedProgram).then(function(data){
+        ProgramFactory.update(pr).then(function(data){
             if (data.response.status === 'ERROR') {
                 var dialogOptions = {
                     headerText: 'program_saving_error',

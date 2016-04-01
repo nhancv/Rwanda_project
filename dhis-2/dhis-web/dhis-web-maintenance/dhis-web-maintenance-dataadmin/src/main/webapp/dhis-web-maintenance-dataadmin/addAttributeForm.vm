@@ -67,12 +67,13 @@
           <input type="checkbox" id="programAttribute" name="programAttribute" value="true" /><label for="programAttribute">$i18n.getString( 'program' )</label> <br />
           <input type="checkbox" id="programStageAttribute" name="programStageAttribute" value="true" /><label for="programStageAttribute">$i18n.getString( 'program_stage' )</label> <br />
           <input type="checkbox" id="trackedEntityAttribute" name="trackedEntityAttribute" value="true" /><label for="trackedEntityAttribute">$i18n.getString( 'tracked_entity' )</label> <br />
-		  <input type="checkbox" id="trackedEntityAttributeAttribute" name="trackedEntityAttributeAttribute" value="true" /><label for="trackedEntityAttributeAttribute">$i18n.getString( 'tracked_entity_attribute' )</label> <br />
-		  <input type="checkbox" id="categoryOptionAttribute" name="categoryOptionAttribute" value="true" /><label for="categoryOptionAttribute">$i18n.getString( 'category_option' )</label> <br />
-		  <input type="checkbox" id="categoryOptionGroupAttribute" name="categoryOptionGroupAttribute" value="true" /><label for="categoryOptionGroupAttribute">$i18n.getString( 'category_option_group' )</label> <br />
-		  <input type="checkbox" id="documentAttribute" name="documentAttribute" value="true" /><label for="documentAttribute">$i18n.getString( 'document' )</label> <br />
-		  <input type="checkbox" id="optionAttribute" name="optionAttribute" value="true" /><label for="optionAttribute">$i18n.getString( 'option' )</label> <br />
-		  <input type="checkbox" id="optionSetAttribute" name="optionSetAttribute" value="true" /><label for="optionSetAttribute">$i18n.getString( 'option_set' )</label> <br />
+          <input type="checkbox" id="trackedEntityAttributeAttribute" name="trackedEntityAttributeAttribute" value="true" /><label for="trackedEntityAttributeAttribute">$i18n.getString( 'tracked_entity_attribute' )</label> <br />
+    	  <input type="checkbox" id="categoryOptionAttribute" name="categoryOptionAttribute" value="true" /><label for="categoryOptionAttribute">$i18n.getString( 'category_option' )</label> <br />
+    	  <input type="checkbox" id="categoryOptionGroupAttribute" name="categoryOptionGroupAttribute" value="true" /><label for="categoryOptionGroupAttribute">$i18n.getString( 'category_option_group' )</label> <br />
+    	  <input type="checkbox" id="documentAttribute" name="documentAttribute" value="true" /><label for="documentAttribute">$i18n.getString( 'document' )</label> <br />
+    	  <input type="checkbox" id="optionAttribute" name="optionAttribute" value="true" /><label for="optionAttribute">$i18n.getString( 'option' )</label> <br />
+    	  <input type="checkbox" id="optionSetAttribute" name="optionSetAttribute" value="true" /><label for="optionSetAttribute">$i18n.getString( 'option_set' )</label> <br />
+		  <input type="checkbox" id="projectAttribute" name="projectAttribute" value="true" /><label for="projectAttribute">$i18n.getString( 'project' )</label> <br />
 		</td>
 	</tr>
 
@@ -88,7 +89,6 @@
 				<option value="INTEGER" >$i18n.getString( "integer" )</option>
 				<option value="INTEGER_POSITIVE">$i18n.getString( "positive_integer" )</option>
 				<option value="INTEGER_NEGATIVE">$i18n.getString( "negative_integer" )</option>
-				<option value="FILE_RESOURCE">$i18n.getString( "file" )</option>
 			</select>
 		</td>
 	</tr>

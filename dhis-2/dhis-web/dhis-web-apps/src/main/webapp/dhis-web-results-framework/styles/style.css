@@ -277,8 +277,8 @@ div#leftBar {
 }
 
 .modal-full-window {
-    width: 99%;
-    height: 99%;
+    width: 80%;
+    height: 80%;
 }
 
 .modal-dialog {
@@ -587,9 +587,15 @@ div#orgUnitTree {
     cursor: pointer;
 }
 
-#multiSelectAvailable, #multiSelectSelected, .sub-program-div {
+#multiSelectAvailable, #multiSelectSelected {
     width: 100%;
     height: 250px;
+    overflow-y: scroll;
+    overflow-x: scroll;
+}
+
+.sub-program-div {
+    width: 100%;
 }
 
 .bordered-sub-program-div {

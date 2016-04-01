@@ -54,77 +54,59 @@
         </table>
     </div>
 </div>
-<div class="row vertical-spacing">
+
+<div class="row">
     <div class="col-sm-12">
-        <tabset justified="true">
-            <tab heading="{{'outcomes'| translate}}" class="bold">
-                <d2-multi-select 
-                    ng-model="model.selectedProgram.outcomes" 
-                    available="model.outcomeIndicatorGroups" 
-                    available-label="{{'available'| translate}}" 
-                    selected-label="{{'selected'| translate}}"                     
-                    display-attr="name">
-                </d2-multi-select>
-            </tab>
-            <!--<tab heading="{{'outputs'| translate}}" class="bold">
-                <d2-multi-select 
-                    ng-model="model.selectedProgram.outputs" 
-                    available="model.outputIndicatorGroups" 
-                    available-label="{{'available'| translate}}" 
-                    selected-label="{{'selected'| translate}}"                     
-                    display-attr="name">
-                </d2-multi-select>
-            </tab>-->
-            <tab heading="{{'sub_programs'| translate}}" class="bold">            
-                <div class="bordered-sub-program-div">
-                    <div class="row">
-                        <div class="col-sm-12 vertical-spacing">
-                            <button type="button" class="btn btn-primary pull-right" ng-click="showSubProgramDiv('ADD', null)">{{'add_new'| translate}} </button>                    
-                        </div>
-                    </div>
-                    <div class="sub-program-div vertical-spacing">  
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <div ng-if="!model.selectedProgram.subProgramms || model.selectedProgram.subProgramms.length < 1" class="alert alert-warning vertical-spacing">
-                                    {{'no_sub_program_available'| translate}}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div ng-if="model.selectedProgram.subProgramms.length > 0" class="col-sm-12 vertical-spacing">
-                                <table class="listTable dhis2-table-striped-border dhis2-table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>
-                                                {{'name'| translate}}
-                                            </th>
-                                            <th>
-                                                {{'code'| translate}}
-                                            </th>
-                                            <th>
-                                                {{'description'| translate}}
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr title="{{'edit'| translate}}" ng-click="showSubProgramDiv('EDIT', subProgram)" ng-repeat="subProgram in model.selectedProgram.subProgramms | orderBy: 'name'">
-                                            <td>
-                                                {{subProgram.name}}
-                                            </td>
-                                            <td>
-                                                {{subProgram.code}}
-                                            </td>
-                                            <td>
-                                                {{subProgram.description}}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div> 
-                        </div>
-                    </div>
-                </div>
-            </tab>        
-        </tabset>
+        <h3>
+            {{'sub_programs'| translate}}
+        </h3>
+        <div class="row">
+            <div class="col-sm-12">
+                <button type="button" class="btn btn-primary pull-right" ng-disabled="model.showAddProgramDiv" ng-click="showSubProgramDiv('ADD', null)">{{'add_new'| translate}} </button>                    
+            </div>
+        </div>
     </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div ng-if="model.showEditProgramDiv && !model.selectedProgram.subProgramms || model.selectedProgram.subProgramms.length < 1" class="alert alert-warning vertical-spacing">
+            {{'no_sub_program_available'| translate}}
+        </div>
+        <div ng-if="model.showAddProgramDiv" class="alert alert-info vertical-spacing">
+            {{'program_is_required'| translate}}
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div ng-if="model.selectedProgram.subProgramms.length > 0" class="col-sm-12 vertical-spacing">
+        <table class="listTable dhis2-table-striped-border dhis2-table-hover">
+            <thead>
+                <tr>
+                    <th>
+                        {{'name'| translate}}
+                    </th>
+                    <th>
+                        {{'code'| translate}}
+                    </th>
+                    <th>
+                        {{'description'| translate}}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr title="{{'edit'| translate}}" ng-click="showSubProgramDiv('EDIT', subProgram)" ng-repeat="subProgram in model.selectedProgram.subProgramms| orderBy: 'name'">
+                    <td>
+                        {{subProgram.name}}
+                    </td>
+                    <td>
+                        {{subProgram.code}}
+                    </td>
+                    <td>
+                        {{subProgram.description}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div> 
 </div>

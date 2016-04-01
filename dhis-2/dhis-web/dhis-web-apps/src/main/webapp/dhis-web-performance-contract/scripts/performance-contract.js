@@ -385,7 +385,7 @@ function getAllDataSets( ids )
         return $.ajax( {
             url: '../api/dataSets.json',
             type: 'GET',
-            data: 'fields=id,periodType,displayName,version,indicators[id,indicatorGrop[id]],organisationUnits[id,name],dataElements[id,code,name,description,formName,valueType,optionSetValue,optionSet[id],dataElementGroups[id,dataElementGroupSet[id]],categoryCombo[id,isDefault]]&paging=false&filter=id:in:' + ids
+            data: 'fields=id,periodType,displayName,version,attributeValues[value,attribute[id,name,code],indicators[id,indicatorGrop[id]],organisationUnits[id,name],dataElements[id,code,name,description,formName,valueType,optionSetValue,optionSet[id],dataElementGroups[id,dataElementGroupSet[id]],categoryCombo[id,isDefault]]&paging=false&filter=id:in:' + ids
         }).done( function( response ){
             
             if(response.dataSets){
@@ -394,7 +394,8 @@ function getAllDataSets( ids )
                     _.each(_.values( dataSet.organisationUnits), function(o){
                         ou[o.id] = o.name;
                     });
-                    dataSet.organisationUnits = ou;                   
+                    dataSet.organisationUnits = ou;                    
+                    dataSet = processMetaDataAttribute(dataSet);
 
                     dhis2.pc.store.set( 'dataSets', dataSet );
                 });

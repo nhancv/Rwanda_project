@@ -52,15 +52,15 @@
             </div>
         </div>
     </div>
+    
     <div class="row">
         <form name="programForm" novalidate>
             <div class="col-sm-12">
-                <div ng-if="model.showAddProgramDiv">
+                <div ng-if="model.showAddProgramDiv || model.showEditProgramDiv">
                     <div ng-include="'components/program/program-form.html'"></div>                            
                 </div>
-                <div ng-if="model.showEditProgramDiv">
-                    <div ng-include="'components/program/program-form.html'"></div>                            
-                </div>
+            </div>
+            <div class="col-sm-12">
                 <div class="vertical-spacing" ng-if="model.showAddProgramDiv || model.showEditProgramDiv">                
                     <button type="button" class="btn btn-primary" ng-click="addProgram()" ng-if="model.showAddProgramDiv">{{'save'| translate}} </button>
                     <button type="button" class="btn btn-primary" ng-click="updateProgram()" ng-if="model.showEditProgramDiv">{{'update'| translate}}</button>

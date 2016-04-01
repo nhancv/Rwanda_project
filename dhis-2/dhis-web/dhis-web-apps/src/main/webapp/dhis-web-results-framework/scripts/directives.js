@@ -25,7 +25,7 @@ var resultsFrameworkDirectives = angular.module('resultsFrameworkDirectives', []
                   '<div class="row">'+
                     '<div class="col-sm-5">' + 
                         '<div class="select-list-labels">{{ availableLabel }}</div>' +
-                        '<div><select id="multiSelectAvailable" class="form-control" ng-model="selected.available" multiple ng-options="e as e[displayAttr] for e in available | filter:filterText | orderBy: \'name\'"></select></div>' + 
+                        '<div><select id="multiSelectAvailable" ng-model="selected.available" multiple ng-options="e as e[displayAttr] for e in available | filter:filterText | orderBy: \'name\'"></select></div>' + 
                     '</div>' + 
                     '<div class="col-sm-2">' + 
                       '<div class="select-list-buttons"><button class="btn btn-default btn-block" ng-click="add()" ng-disabled="selected.available.length == 0">' + 
@@ -37,7 +37,7 @@ var resultsFrameworkDirectives = angular.module('resultsFrameworkDirectives', []
                     '</div>' + 
                     '<div class="col-sm-5">' +
                         '<div class="select-list-labels">{{ selectedLabel }}</div>' +
-                        '<div><select id="multiSelectSelected" class="form-control" ng-model="selected.current" multiple ng-options="e as e[displayAttr] for e in model | orderBy: \'name\'"></select></div>' +
+                        '<div><select id="multiSelectSelected" ng-model="selected.current" multiple ng-options="e as e[displayAttr] for e in model | orderBy: \'name\'"></select></div>' +
                     '</div>' +
                   '</div>',
         link: function (scope, elm, attrs) {

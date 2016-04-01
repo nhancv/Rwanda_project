@@ -36,7 +36,7 @@
     </set>
     
     <many-to-one name="programm" class="org.hisp.dhis.resultsframework.Programm" column="programmid"
-      foreign-key="fk_subprogramm_programm" not-null="true" />
+      foreign-key="fk_subprogramm_programm"/>
         
   </class>
 </hibernate-mapping>

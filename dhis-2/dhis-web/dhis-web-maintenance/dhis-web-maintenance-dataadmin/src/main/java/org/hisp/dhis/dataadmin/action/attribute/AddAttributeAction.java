@@ -224,6 +224,13 @@ public class AddAttributeAction
     {
         this.optionSetAttribute = optionSetAttribute;
     }
+    
+    private boolean projectAttribute;
+
+    public void setProjectAttribute( boolean projectAttribute )
+    {
+        this.projectAttribute = projectAttribute;
+    }
 
     private String optionSetUid;
 
@@ -266,6 +273,7 @@ public class AddAttributeAction
         attribute.setDocumentAttribute( documentAttribute );
         attribute.setOptionAttribute( optionAttribute );
         attribute.setOptionSetAttribute( optionSetAttribute );
+        attribute.setProjectAttribute( projectAttribute );
 
         attributeService.addAttribute( attribute );
 

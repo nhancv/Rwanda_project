@@ -38,6 +38,7 @@ import org.hisp.dhis.common.MergeMode;
 import org.hisp.dhis.common.annotation.Scanned;
 import org.hisp.dhis.common.view.DetailedView;
 import org.hisp.dhis.common.view.ExportView;
+import org.hisp.dhis.dataset.DataSet;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -70,6 +71,8 @@ public class Project
     
     private Integer costByOthers;
     
+    private String leadDonor;
+    
     private Date startDate;
     
     private Date endDate;
@@ -77,6 +80,8 @@ public class Project
     private Boolean extensionPossible;
     
     private ProjectStatus status;
+    
+    private DataSet budgetDataSet;
 
     @Scanned
     private Set<SubProgramm> subProgramms = new HashSet<>();
@@ -240,6 +245,24 @@ public class Project
     }
 
     /**
+     * @return the leadDonor
+     */
+    @JsonProperty
+    @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
+    public String getLeadDonor()
+    {
+        return leadDonor;
+    }
+
+    /**
+     * @param leadDonor the leadDonor to set
+     */
+    public void setLeadDonor( String leadDonor )
+    {
+        this.leadDonor = leadDonor;
+    }
+
+    /**
      * @return the startDate
      */
     @JsonProperty
@@ -332,6 +355,25 @@ public class Project
         this.subProgramms = subProgramms;
     }
     
+    /**
+     * @return the budgetDataSet
+     */
+    @JsonProperty
+    @JsonSerialize( as = BaseIdentifiableObject.class )
+    @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
+    public DataSet getBudgetDataSet()
+    {
+        return budgetDataSet;
+    }
+
+    /**
+     * @param budgetDataSet the budgetDataSet to set
+     */
+    public void setBudgetDataSet( DataSet budgetDataSet )
+    {
+        this.budgetDataSet = budgetDataSet;
+    }
+
     @Override
     public void mergeWith( IdentifiableObject other, MergeMode mergeMode )
     {
@@ -351,6 +393,7 @@ public class Project
                 costByGovernment = project.getCostByGovernment();
                 costByLeadDonor = project.getCostByLeadDonor();
                 costByOthers = project.getCostByOthers();
+                leadDonor = project.getLeadDonor();
                 startDate = project.getStartDate();
                 endDate = project.getEndDate();
                 extensionPossible = project.getExtensionPossible();
@@ -368,6 +411,7 @@ public class Project
                 costByGovernment = project.getCostByGovernment() == null ? costByGovernment : project.getCostByGovernment();
                 costByLeadDonor = project.getCostByLeadDonor() == null ? costByLeadDonor : project.getCostByLeadDonor();
                 costByOthers = project.getCostByOthers() == null ? costByOthers : project.getCostByOthers();
+                leadDonor = project.getLeadDonor() == null ? leadDonor : project.getLeadDonor();
                 startDate = project.getStartDate() == null ? startDate : project.getStartDate();
                 endDate = project.getEndDate() == null ? endDate : project.getEndDate();
                 extensionPossible = project.getExtensionPossible() == null ? extensionPossible : project.getExtensionPossible();

@@ -116,6 +116,3 @@ Supportive method for displaying rows with alternating colors in a table.
 		attributeValues
 *****************************************************#
 #macro( tblDynamicAttributes $args ) #end
-
-	
-#macro( trFileInput $args ) #end

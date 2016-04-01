@@ -74,6 +74,7 @@
       <input type="checkbox" id="documentAttribute" name="documentAttribute" value="true" #if( $attribute.documentAttribute ) checked="checked" #end /><label for="documentAttribute">$i18n.getString( 'document' ) <br />
       <input type="checkbox" id="optionAttribute" name="optionAttribute" value="true" #if( $attribute.optionAttribute ) checked="checked" #end /><label for="optionAttribute">$i18n.getString( 'option' ) <br />
       <input type="checkbox" id="optionSetAttribute" name="optionSetAttribute" value="true" #if( $attribute.optionSetAttribute ) checked="checked" #end /><label for="optionSetAttribute">$i18n.getString( 'option_set' ) <br />
+	  <input type="checkbox" id="projectAttribute" name="projectAttribute" value="true" #if( $attribute.projectAttribute ) checked="checked" #end /><label for="projectAttribute">$i18n.getString( 'project' ) <br />
 		</label> <br />
 		</td>
 	</tr>
@@ -90,7 +91,6 @@
 				<option value="INTEGER" #if( $attribute.valueType == 'INTEGER') selected="selected" #end>$i18n.getString( "integer" )</option>
 				<option value="INTEGER_POSITIVE" #if( $attribute.valueType == 'INTEGER_POSITIVE') selected="selected" #end>$i18n.getString( "positive_integer" )</option>
 				<option value="INTEGER_NEGATIVE" #if( $attribute.valueType == 'INTEGER_NEGATIVE') selected="selected" #end>$i18n.getString( "negative_integer" )</option>
-				<option value="FILE_RESOURCE" #if( $attribute.valueType == 'FILE_RESOURCE') selected="selected" #end>$i18n.getString( "file" )</option>
       </select>
     </td>
   </tr>

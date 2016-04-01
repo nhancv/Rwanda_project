@@ -96,11 +96,15 @@
                     <span class="required">*</span>
                 </td>
                 <td>
-                    <input type="text"
-                           name="leadDonor" 
-                           class="form-control"
-                           ng-model="model.selectedProject.leadDonor" 
-                           ng-required="true"/>
+                    <ui-select ng-model="model.selectedProject.leadDonor" 
+                            theme="select2" 
+                            name="leadDonor"
+                            style="width:100%;">
+                        <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{'select_or_search' | translate}}">{{$select.selected.name  || $select.selected}}</ui-select-match>
+                        <ui-select-choices  repeat="option.name as option in model.donorList | filter: $select.search | limitTo:maxOptionSize">
+                            <span ng-bind-html="option.name | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
                     <div ng-messages="projectForm.leadDonor.$error" ng-if="interacted(projectForm.leadDonor, projectForm)" class="required hideInPrint" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html"></div>
                 </td>
             </tr>
@@ -143,13 +147,13 @@
                 </td>
                 <td class="form-control">
                     <label class="radio-inline">
-                        <input type="radio" name="extensionPossible" ng-model="model.selectedProject.extensionPossible" value="true">{{'yes'| translate}}
+                        <input type="radio" name="extensionPossible" ng-model="model.selectedProject.extensionPossible" value=true>{{'yes'| translate}}
                     </label>
                     <label class="radio-inline">
-                        <input type="radio" name="extensionPossible" ng-model="model.selectedProject.extensionPossible" value="false">{{'no'| translate}}
+                        <input type="radio" name="extensionPossible" ng-model="model.selectedProject.extensionPossible" value=false>{{'no'| translate}}
                     </label>
                     <label class="radio-inline">
-                        <input type="radio" name="extensionPossible" ng-model="model.selectedProject.extensionPossible" alue="">{{'unknown'| translate}}
+                        <input type="radio" name="extensionPossible" ng-model="model.selectedProject.extensionPossible" value="">{{'unknown'| translate}}
                     </label>
                     <div ng-messages="projectForm.extensionPossible.$error" ng-if="interacted(projectForm.extensionPossible, projectForm)" class="required hideInPrint" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html"></div>
                 </td>
@@ -229,6 +233,21 @@
                         <option value="STARTED">{{'started' | translate}}</option>                        
                     </select>
                     <div ng-messages="projectForm.status.$error" ng-if="interacted(projectForm.status, projectForm)" class="required hideInPrint" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html"></div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    {{'budget_data_set' | translate}}
+                </td>
+                <td>
+                    <ui-select ng-model="model.selectedProject.budgetDataSet" 
+                            theme="select2" 
+                            style="width:100%;">
+                        <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{'select_or_search' | translate}}">{{$select.selected.name  || $select.selected}}</ui-select-match>
+                        <ui-select-choices  repeat="dataSet in model.budgetDataSets | filter: $select.search | limitTo:maxOptionSize">
+                            <span ng-bind-html="dataSet.name | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
                 </td>
             </tr>
         </table>

@@ -33,6 +33,8 @@
    	
    	<property name="costByOthers" />
    	
+   	<property name="leadDonor" />
+   	
    	<property name="startDate" />
    	
    	<property name="endDate" />
@@ -53,6 +55,9 @@
       <many-to-many class="org.hisp.dhis.resultsframework.SubProgramm" column="subprogramid"
         foreign-key="fk_project_subprogramid" />
     </set>
+    
+    <many-to-one name="budgetDataSet" class="org.hisp.dhis.dataset.DataSet" column="datasetid"
+      foreign-key="fk_budgetdataset_project" not-null="true" />
         
   </class>
 </hibernate-mapping>

@@ -32,7 +32,7 @@
                 </div>
                 <!-- context menu ends -->         
 
-                <table class="listTable dhis2-table-striped dhis2-table-hover">
+                <table class="listTable dhis2-table-striped-border dhis2-table-hover">
                     <thead>
                         <tr>
                             <th>
@@ -105,104 +105,6 @@
                 </table>
             </div>
         </div>
-        <!--<div class="row">
-            <div class="col-sm-6">
-                <table class="table table-bordered table-compact">
-                    <tbody ng-repeat="impact in model.fullResultsFramework.impacts | orderBy: 'name'">
-                        <tr class="alert-success">
-                            <td class="impact-sub-header">
-                                {{impact.name}}
-                            </td>
-                        </tr>        
-                        <tr ng-repeat="imi in impact.indicators | orderBy: 'name'">
-                            <td>
-                                {{imi.name}}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-6">
-                <table class="table table-bordered table-compact">                    
-                    <tbody ng-repeat="outcome in model.fullResultsFramework.outcomes | orderBy: 'name'">
-                        <tr class="alert-info">
-                            <td class="impact-sub-header">
-                                {{outcome.name}}
-                            </td>
-                        </tr>        
-                        <tr ng-repeat="oci in outcome.indicators | orderBy: 'name'">
-                            <td>
-                                {{oci.name}}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-6">
-                <table class="table table-bordered table-compact">
-                    <tbody ng-repeat="program in model.fullResultsFramework.programms | orderBy: 'name'">
-                        <tr class="alert-info">
-                            <td class="impact-sub-header">
-                                {{program.name}}
-                            </td>
-                        </tr>        
-                        <tr ng-repeat="outcome in program.outcomes">
-                            <td>
-                                <table class="table table-bordered table-compact">
-                                    <tbody>
-                                        <tr>
-                                            <td class="bold">
-                                                {{outcome.name}}
-                                            </td>
-                                        </tr>
-                                        <tr ng-repeat="oci in outcome.indicators | orderBy: 'name'">
-                                            <td>
-                                                {{oci.name}}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </td>
-                        </tr>
-                        <tr ng-repeat="subprogram in program.subProgramms | orderBy: 'name'">
-                            <td>
-                                <table class="table table-bordered table-compact">
-                                    <tbody>
-                                        <tr>
-                                            <td class="bold">
-                                                {{subprogram.name}}
-                                            </td>
-                                        </tr>
-                                        <tr ng-repeat="op in subprogram.outputs | orderBy: 'name'">
-                                            <td>
-                                                <table class="table table-bordered table-compact">
-                                                    <tbody>
-                                                        <tr>
-                                                            <td class="bold">
-                                                                {{op.name}}
-                                                            </td>
-                                                        </tr>
-                                                        <tr ng-repeat="opi in op.indicators | orderBy: 'name'">
-                                                            <td>
-                                                                {{opi.name}}
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>-->
     </div>
     
 </div>

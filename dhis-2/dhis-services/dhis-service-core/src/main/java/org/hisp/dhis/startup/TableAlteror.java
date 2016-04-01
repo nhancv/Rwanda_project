@@ -82,6 +82,9 @@ public class TableAlteror
         int defaultCategoryComboId = getDefaultCategoryCombo();
         int defaultOptionComboId = getDefaultOptionCombo();
 
+        //update subprogramm table
+        executeSql( "ALTER TABLE subprogramm ALTER COLUMN programmid DROP NOT NULL" );
+        
         // ---------------------------------------------------------------------
         // Drop outdated tables
         // ---------------------------------------------------------------------
@@ -755,6 +758,7 @@ public class TableAlteror
         executeSql( "UPDATE attribute SET documentattribute=false WHERE documentattribute IS NULL" );
         executeSql( "UPDATE attribute SET optionattribute=false WHERE optionattribute IS NULL" );
         executeSql( "UPDATE attribute SET optionsetattribute=false WHERE optionsetattribute IS NULL" );
+        executeSql( "UPDATE attribute SET projectattribute=false WHERE projectattribute IS NULL" );
 
         executeSql( "update attribute set isunique=false where isunique is null" );
 

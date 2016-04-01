@@ -66,6 +66,8 @@
     <property name="optionAttribute" not-null="false" />
 
     <property name="optionSetAttribute" not-null="false" />
+    
+    <property name="projectAttribute" not-null="false" />
 
     <property name="sortOrder" />
 

@@ -45,6 +45,7 @@ import org.hisp.dhis.organisationunit.OrganisationUnitGroup;
 import org.hisp.dhis.organisationunit.OrganisationUnitGroupSet;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramStage;
+import org.hisp.dhis.resultsframework.Project;
 import org.hisp.dhis.trackedentity.TrackedEntity;
 import org.hisp.dhis.trackedentity.TrackedEntityAttribute;
 import org.hisp.dhis.user.User;
@@ -80,6 +81,7 @@ public interface AttributeStore
         .put( Document.class, "documentAttribute" )
         .put( Option.class, "optionAttribute" )
         .put( OptionSet.class, "optionSetAttribute" )
+        .put( Project.class, "projectAttribute" )
         .build();
 
     /**

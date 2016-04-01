@@ -161,6 +161,26 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
             });            
             return def.promise;            
         },
+        getBudgetDataSets: function(){            
+            var roles = SessionStorageService.get('USER_ROLES');
+            var userRoles = roles && roles.userCredentials && roles.userCredentials.userRoles ? roles.userCredentials.userRoles : [];
+            var def = $q.defer();
+            
+            RFStorageService.currentStore.open().done(function(){
+                RFStorageService.currentStore.getAll('dataSets').done(function(dss){
+                    var dataSets = [];
+                    angular.forEach(dss, function(ds){                            
+                        if( userHasValidRole(ds, userRoles) && ds.budgetDataSet){
+                            dataSets.push({id: ds.id, name: ds.name});
+                        }
+                    });
+                    $rootScope.$apply(function(){
+                        def.resolve(dataSets);
+                    });
+                });
+            });            
+            return def.promise;            
+        },
         get: function(uid){
             
             var def = $q.defer();
@@ -258,17 +278,7 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
     };        
 })
 
-.factory('ResultsFrameworkFactory', function($http, DialogService, $translate) {   
-    
-    var errorNotifier = function(response){
-        if( response && response.data && response.data.status === 'ERROR'){
-            var dialogOptions = {
-                headerText: response.data.status,
-                bodyText: response.data.message ? response.data.message : $translate.instant('unable_to_fetch_data_from_server')
-            };		
-            DialogService.showDialog({}, dialogOptions);
-        }
-    };
+.factory('ResultsFrameworkFactory', function($http, RfUtils) {
     
     return {
         
@@ -276,7 +286,7 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
             var promise = $http.get('../api/resultsFrameworks/' + uid + '.json?fields=id,name,code,description,active,impacts[id,name,indicators[name]],outcomes[id,name,indicators[name]],outputs[id,name,indicators[name]],programms[id,name,code,description,outcomes[id,name,indicators[name]],outputs[id,name,indicators[name]],subProgramms[id,name,code,description,outputs[id,name,indicators[name]]]]').then(function(response){               
                 return response.data;
             }, function(response){
-                errorNotifier(response);
+                RfUtils.errorNotifier(response);
             });            
             return promise;
         },
@@ -284,7 +294,7 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
             var promise = $http.get('../api/resultsFrameworks.json?fields=id,name,code,description,active,impacts[id,name],outcomes[id,name],outputs[id,name],programms[id,name,code,description,outcomes[id,name],outputs[id,name],subProgramms[id,name,code,description,outputs[id,name]]]&paging=false').then(function(response){               
                 return response.data;
             }, function(response){
-                errorNotifier(response);
+                RfUtils.errorNotifier(response);
             });            
             return promise;
         },
@@ -309,33 +319,23 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
     };    
 })
 
-.factory('ProgramFactory', function($http, DialogService, $translate) {   
-    
-    var errorNotifier = function(response){
-        if( response && response.data && response.data.status === 'ERROR'){
-            var dialogOptions = {
-                headerText: response.data.status,
-                bodyText: response.data.message ? response.data.message : $translate.instant('unable_to_fetch_data_from_server')
-            };		
-            DialogService.showDialog({}, dialogOptions);
-        }
-    };
-    
+.factory('ProgramFactory', function($http, RfUtils) {   
+
     return {
         
         get: function(uid){            
-            var promise = $http.get('../api/programms/' + uid + '.json?fields=id,name,code,description,outcomes[id,name],outputs[id,name],subProgramms[id,name,code,description,sortOrder,outputs[id,name]]').then(function(response){               
+            var promise = $http.get('../api/programms/' + uid + '.json?fields=id,name,code,description,outcomes[id,name],outputs[id,name],subProgramms[id,name,code,description,sortOrder,outputs[id,name],programm[id]]').then(function(response){               
                 return response.data;
             }, function(response){
-                errorNotifier(response);
+                RfUtils.errorNotifier(response);
             });            
             return promise;
         },
         getAll: function(){            
-            var promise = $http.get('../api/programms.json?fields=id,name,code,description,outcomes[id,name],outputs[id,name],subProgramms[id,name,code,description,sortOrder,outputs[id,name]]&paging=false').then(function(response){               
+            var promise = $http.get('../api/programms.json?fields=id,name,code,description,outcomes[id,name],outputs[id,name],subProgramms[id,name,code,description,sortOrder,outputs[id,name],programm[id]]&paging=false').then(function(response){               
                 return response.data;
             }, function(response){
-                errorNotifier(response);
+                RfUtils.errorNotifier(response);
             });            
             return promise;
         },
@@ -360,25 +360,15 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
     };    
 })
 
-.factory('SubProgramFactory', function($http, DialogService, $translate) {   
-    
-    var errorNotifier = function(response){
-        if( response && response.data && response.data.status === 'ERROR'){
-            var dialogOptions = {
-                headerText: response.data.status,
-                bodyText: response.data.message ? response.data.message : $translate.instant('unable_to_fetch_data_from_server')
-            };		
-            DialogService.showDialog({}, dialogOptions);
-        }
-    };
-    
+.factory('SubProgramFactory', function($http, RfUtils) {   
+
     return {
         
         get: function(uid){            
             var promise = $http.get('../api/subProgramms/' + uid + '.json?fields=id,name,code,description,sortOrder,programm[id],outputs[id,name],dataSets[id,name]').then(function(response){               
                 return response.data;
             }, function(response){
-                errorNotifier(response);
+                RfUtils.errorNotifier(response);
             });            
             return promise;
         },
@@ -386,7 +376,7 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
             var promise = $http.get('../api/subProgramms.json?fields=id,name,code,description,sortOrder,program[id],outputs[id,name]&paging=false').then(function(response){               
                 return response.data;
             }, function(response){
-                errorNotifier(response);
+                RfUtils.errorNotifier(response);
             });            
             return promise;
         },
@@ -411,34 +401,24 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
     };    
 })
 
-.factory('ProjectFactory', function($http, $translate, DialogService, DateUtils) {   
-    
-    var errorNotifier = function(response){
-        if( response && response.data && response.data.status === 'ERROR'){
-            var dialogOptions = {
-                headerText: response.data.status,
-                bodyText: response.data.message ? response.data.message : $translate.instant('unable_to_fetch_data_from_server')
-            };		
-            DialogService.showDialog({}, dialogOptions);
-        }
-    };
+.factory('ProjectFactory', function($http, DateUtils, RfUtils) {   
     
     return {
         
         get: function(uid){            
-            var promise = $http.get('../api/projects/' + uid + '.json?fields=id,name,code,totalCost,costByGovernment,costByLeadDonor,costByOthers,leadDonor,startDate,endDate,extensionPossible,description,contactName,contactPhone,contactEmail,status,subProgramms[id,name,code,description]').then(function(response){               
+            var promise = $http.get('../api/projects/' + uid + '.json?fields=id,name,code,totalCost,costByGovernment,costByLeadDonor,costByOthers,leadDonor,startDate,endDate,extensionPossible,description,contactName,contactPhone,contactEmail,status,budgetDataSet[id,name],subProgramms[id,name,code,description]').then(function(response){               
                 if( response.data.startDate && response.data.endDate){
                     response.data.startDate = DateUtils.formatFromApiToUser(response.data.startDate);
                     response.data.endDate = DateUtils.formatFromApiToUser(response.data.endDate);
                 }                
                 return response.data; 
             }, function(response){
-                errorNotifier(response);
+                RfUtils.errorNotifier(response);
             });            
             return promise;
         },
         getAll: function(){            
-            var promise = $http.get('../api/projects.json?fields=id,name,code,totalCost,costByGovernment,costByLeadDonor,costByOthers,leadDonor,startDate,endDate,extensionPossible,description,contactName,contactPhone,contactEmail,status,subProgramms[id,name,code,description]&paging=false').then(function(response){
+            var promise = $http.get('../api/projects.json?fields=id,name,code,totalCost,costByGovernment,costByLeadDonor,costByOthers,leadDonor,startDate,endDate,extensionPossible,description,contactName,contactPhone,contactEmail,status,budgetDataSet[id,name],subProgramms[id,name,code,description]&paging=false').then(function(response){
                 if( response.data.projects ) {
                     angular.forEach(response.data.projects, function(pr){
                         pr.startDate = DateUtils.formatFromApiToUser(pr.startDate);
@@ -447,7 +427,7 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
                 }                
                 return response.data;
             }, function(response){
-                errorNotifier(response);
+                RfUtils.errorNotifier(response);
             });            
             return promise;
         },
@@ -486,7 +466,21 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
     };    
 })
 
-.service('RfUtils', function(){
+.factory('MetaAttributesFactory', function($http, RfUtils) {
+    
+    return {
+        getProjectAttributes: function(){            
+            var promise = $http.get('../api/attributes.json?filter=projectAttribute:eq:true&fields=id,name,code,projectAttribute,valueType,optionSet[id,name,options[id,name,code]]&paging=false').then(function(response){               
+                return response.data;
+            }, function(response){
+                RfUtils.errorNotifier(response);
+            });            
+            return promise;
+        }
+    };    
+})
+
+.service('RfUtils', function($translate, DialogService){
 
     return {
         removeItems: function(bag, items){
@@ -497,6 +491,15 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
             }                 
             
             return result;
+        },
+        errorNotifer: function( response ){
+            if( response && response.data && response.data.status === 'ERROR'){
+                var dialogOptions = {
+                    headerText: response.data.status,
+                    bodyText: response.data.message ? response.data.message : $translate.instant('unable_to_fetch_data_from_server')
+                };		
+                DialogService.showDialog({}, dialogOptions);
+            }
         }
     };
 });

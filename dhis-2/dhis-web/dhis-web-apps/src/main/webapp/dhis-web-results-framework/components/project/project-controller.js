@@ -7,13 +7,18 @@ resultsFramework.controller('ProjectController',
                 DialogService, 
                 ModalService, 
                 ProjectFactory, 
-                MetaDataFactory) {
+                MetaDataFactory,
+                DataSetFactory,
+                MetaAttributesFactory) {
     
+    $scope.maxOptionSize = 30;
     $scope.model = {    showAddProjectDiv: false,
                         showEditProject: false,
                         selectSize: 20,
                         projects: [],
+                        donorList: [],
                         selectedProject: {},
+                        budgetDataSets: [],
                         indicatorGroups: []
                     };
 
@@ -27,6 +32,20 @@ resultsFramework.controller('ProjectController',
     
     ProjectFactory.getAll().then(function(response){
         $scope.model.projects = response.projects ? response.projects : [];
+    });
+    
+    DataSetFactory.getBudgetDataSets().then(function(ds){
+        $scope.model.budgetDataSets = ds ? ds : [];
+    });
+    
+    MetaAttributesFactory.getProjectAttributes().then(function(response){
+        if(response && response.attributes){            
+            angular.forEach(response.attributes, function(att){
+                if(att.code === 'donorList' && att.optionSet && att.optionSet.options && att.optionSet.options.length > 0){
+                    $scope.model.donorList = att.optionSet.options;
+                }
+            });
+        }
     });
     
     $scope.showAddProject = function(){
