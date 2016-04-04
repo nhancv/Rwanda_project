@@ -65,8 +65,8 @@ public class FileResource
     private String storageKey;
 
     /**
-     * Flag indicating whether the resource is assigned (e.g. to a DataValue) or 
-     * not. Unassigned FileResources are generally safe to delete when reaching 
+     * Flag indicating whether the resource is assigned (e.g. to a DataValue) or
+     * not. Unassigned FileResources are generally safe to delete when reaching
      * a certain age (unassigned objects might be in staging).
      */
     private boolean assigned = false;
@@ -215,7 +215,7 @@ public class FileResource
     // Supportive methods
     // -------------------------------------------------------------------------
 
-    private String generateStorageKey()
+    public String generateStorageKey()
     {
         return domain.getContainerName() + "/" + UUID.randomUUID().toString();
     }

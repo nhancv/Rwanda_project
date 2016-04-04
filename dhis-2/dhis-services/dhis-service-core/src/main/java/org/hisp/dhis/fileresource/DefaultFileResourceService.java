@@ -52,12 +52,12 @@ import java.util.stream.Collectors;
 public class DefaultFileResourceService
     implements FileResourceService
 {
-    private static final Log log = LogFactory.getLog(DefaultFileResourceService.class);
+    private static final Log log = LogFactory.getLog( DefaultFileResourceService.class );
 
     private static final Duration IS_ORPHAN_TIME_DELTA = Hours.TWO.toStandardDuration();
 
     private static final Predicate<FileResource> IS_ORPHAN_PREDICATE =
-        ( fr -> !fr.isAssigned() || fr.getStorageStatus() != FileResourceStorageStatus.STORED );
+        (fr -> !fr.isAssigned() || fr.getStorageStatus() != FileResourceStorageStatus.STORED);
 
     // -------------------------------------------------------------------------
     // Dependencies
@@ -109,7 +109,13 @@ public class DefaultFileResourceService
     }
 
     @Override
-    public List<FileResource> getOrphanedFileResources( )
+    public List<FileResource> getAllFileResources()
+    {
+        return fileResourceStore.getAll();
+    }
+
+    @Override
+    public List<FileResource> getOrphanedFileResources()
     {
         return fileResourceStore.getAllLeCreated( new DateTime().minus( IS_ORPHAN_TIME_DELTA ).toDate() )
             .stream().filter( IS_ORPHAN_PREDICATE ).collect( Collectors.toList() );
@@ -190,20 +196,21 @@ public class DefaultFileResourceService
 
     /**
      * TODO Temporary fix. Remove at some point.
-     *
+     * <p>
      * Ensures correctness of the storageStatus of this FileResource.
-     *
+     * <p>
      * If the status has been 'PENDING' for more than 1 second we check to see if the content may actually have been stored.
      * If this is the case the status is corrected to STORED.
-     *
+     * <p>
      * This method is a TEMPORARY fix for the for now unsolved issue with a race occurring between the Hibernate object cache
      * and the upload callback attempting to modify the FileResource object upon completion.
-     *
+     * <p>
      * Resolving that issue (likely by breaking the StorageStatus into a separate table) should make this method redundant.
      */
     private FileResource ensureStorageStatus( FileResource fileResource )
     {
-        if (FileResourceStorageStatus.PENDING == fileResource.getStorageStatus() )
+        if ( fileResource == null ) return null;
+        if ( FileResourceStorageStatus.PENDING == fileResource.getStorageStatus() )
         {
             Duration pendingDuration = new Duration( new DateTime( fileResource.getLastUpdated() ), DateTime.now() );
 

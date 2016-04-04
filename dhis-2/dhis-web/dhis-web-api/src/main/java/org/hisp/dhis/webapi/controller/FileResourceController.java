@@ -31,17 +31,20 @@ package org.hisp.dhis.webapi.controller;
 import com.google.common.hash.Hashing;
 import com.google.common.io.ByteSource;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.NullInputStream;
 import org.apache.commons.lang3.StringUtils;
+import org.hisp.dhis.common.cache.CacheStrategy;
+import org.hisp.dhis.dxf2.common.Status;
 import org.hisp.dhis.dxf2.webmessage.WebMessage;
 import org.hisp.dhis.dxf2.webmessage.WebMessageException;
-import org.hisp.dhis.dxf2.common.Status;
 import org.hisp.dhis.dxf2.webmessage.responses.FileResourceWebMessageResponse;
 import org.hisp.dhis.fileresource.FileResource;
 import org.hisp.dhis.fileresource.FileResourceDomain;
 import org.hisp.dhis.fileresource.FileResourceService;
 import org.hisp.dhis.schema.descriptors.FileResourceSchemaDescriptor;
 import org.hisp.dhis.user.CurrentUserService;
+import org.hisp.dhis.webapi.utils.ContextUtils;
 import org.hisp.dhis.webapi.utils.WebMessageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -56,11 +59,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Halvdan Hoem Grelland
@@ -85,9 +91,67 @@ public class FileResourceController
     @Autowired
     private ServletContext servletContext;
 
+    @Autowired
+    private ContextUtils contextUtils;
+
     // -------------------------------------------------------------------------
     // Controller methods
     // -------------------------------------------------------------------------
+
+    @RequestMapping( value = "/list", method = RequestMethod.GET )
+    public @ResponseBody
+    List<FileResource> getFileResource( @RequestParam( value = "fileStore", required = false, defaultValue = "false" ) boolean fileStore )
+        throws WebMessageException
+    {
+        List<FileResource> fileResourceList = fileResourceService.getAllFileResources();
+
+        if ( fileResourceList == null )
+        {
+            throw new WebMessageException( WebMessageUtils.notFound( FileResource.class, "Is there something wrong" ) );
+        }
+        if ( fileStore )
+        {
+            List<FileResource> res = new ArrayList<>();
+            for ( FileResource fileResource : fileResourceList )
+            {
+                if ( fileResource.getDomain() == FileResourceDomain.DATA_FILES )
+                {
+                    res.add( fileResource );
+                }
+            }
+            return res;
+        }
+        return fileResourceList;
+    }
+
+    @RequestMapping( value = "/{uid}/data", method = RequestMethod.GET )
+    public void getFileResource( @PathVariable( "uid" ) String uid, HttpServletResponse response ) throws WebMessageException
+    {
+        FileResource fileResource = fileResourceService.getFileResource( uid );
+        if ( fileResource == null )
+        {
+            throw new WebMessageException( WebMessageUtils.notFound( "FileResource not found for uid: " + uid ) );
+        }
+        contextUtils.configureResponse( response, fileResource.getContentType(), CacheStrategy.CACHE_TWO_WEEKS, fileResource.getName(),
+            true );
+
+        InputStream in = null;
+
+        try
+        {
+            in = fileResourceService.getFileResourceContent( fileResource ).openBufferedStream();
+
+            IOUtils.copy( in, response.getOutputStream() );
+        }
+        catch ( Exception ex )
+        {
+            throw new WebMessageException( WebMessageUtils.notFound( "FileResource could not be found on local " ) );
+        }
+        finally
+        {
+            IOUtils.closeQuietly( in );
+        }
+    }
 
     @RequestMapping( value = "/{uid}", method = RequestMethod.GET )
     public @ResponseBody FileResource getFileResource( @PathVariable String uid )
@@ -103,9 +167,21 @@ public class FileResourceController
         return fileResource;
     }
 
+    @RequestMapping( value = "/{uid}", method = RequestMethod.DELETE )
+    public @ResponseBody WebMessage deleteFileResource( @PathVariable String uid )
+        throws WebMessageException
+    {
+        if ( fileResourceService.fileResourceExists( uid ) )
+        {
+            fileResourceService.deleteFileResource( uid );
+            return WebMessageUtils.ok( "Delete file resource successfully" );
+        }
+        throw new WebMessageException( WebMessageUtils.notFound( FileResource.class, uid ) );
+    }
+
     @RequestMapping( method = RequestMethod.POST )
     public @ResponseBody
-    WebMessage saveFileResource( @RequestParam MultipartFile file, @RequestParam( value = "fileStore", required = false, defaultValue = "false" ) boolean fileStore )
+    WebMessage saveFileResource( @RequestParam MultipartFile file, @RequestParam( value = "fileStore", required = false, defaultValue = "false" ) boolean fileStore, @RequestParam( value = "uid", required = false ) String _uid )
         throws WebMessageException, IOException
     {
         String filename = StringUtils.defaultIfBlank( FilenameUtils.getName( file.getOriginalFilename() ), DEFAULT_FILENAME );
@@ -121,16 +197,37 @@ public class FileResourceController
         }
 
         ByteSource bytes = new MultipartFileByteSource( file );
-
         String contentMd5 = bytes.hash( Hashing.md5() ).toString();
-
-        FileResource fileResource = new FileResource( filename, contentType, contentLength, contentMd5, (fileStore) ? FileResourceDomain.DATA_FILES : FileResourceDomain.DATA_VALUE );
-        fileResource.setAssigned( false );
-        fileResource.setCreated( new Date() );
-        fileResource.setUser( currentUserService.getCurrentUser() );
-
         File tmpFile = toTempFile( file );
 
+        FileResource fileResource = null;
+        if ( _uid == null )
+        {
+            fileResource = new FileResource( filename, contentType, contentLength, contentMd5, (fileStore) ? FileResourceDomain.DATA_FILES : FileResourceDomain.DATA_VALUE );
+            fileResource.setAssigned( false );
+            fileResource.setCreated( new Date() );
+            fileResource.setUser( currentUserService.getCurrentUser() );
+        }
+        else
+        {
+            fileResource = getFileResource( _uid );
+
+            deleteFileResource( _uid );
+
+            fileResource.setName( filename );
+            fileResource.setContentType( contentType );
+            fileResource.setContentLength( contentLength );
+            fileResource.setContentMd5( contentMd5 );
+            fileResource.setLastUpdated( new Date() );
+            fileResource.setUser( currentUserService.getCurrentUser() );
+            if ( fileStore )
+            {
+                fileResource.setDomain( FileResourceDomain.DATA_FILES );
+                fileResource.setStorageKey( fileResource.generateStorageKey() );
+            }
+
+
+        }
         String uid = fileResourceService.saveFileResource( fileResource, tmpFile );
 
         if ( uid == null )
@@ -140,7 +237,6 @@ public class FileResourceController
 
         WebMessage webMessage = new WebMessage( Status.OK, HttpStatus.ACCEPTED );
         webMessage.setResponse( new FileResourceWebMessageResponse( fileResource ) );
-
         return webMessage;
     }
 
