@@ -95,7 +95,7 @@ public class FileResourceController
     {
         FileResource fileResource = fileResourceService.getFileResource( uid );
 
-        if ( fileResource == null ) 
+        if ( fileResource == null )
         {
             throw new WebMessageException( WebMessageUtils.notFound( FileResource.class, uid ) );
         }
@@ -104,7 +104,8 @@ public class FileResourceController
     }
 
     @RequestMapping( method = RequestMethod.POST )
-    public @ResponseBody WebMessage saveFileResource( @RequestParam MultipartFile file )
+    public @ResponseBody
+    WebMessage saveFileResource( @RequestParam MultipartFile file, @RequestParam( value = "fileStore", required = false, defaultValue = "false" ) boolean fileStore )
         throws WebMessageException, IOException
     {
         String filename = StringUtils.defaultIfBlank( FilenameUtils.getName( file.getOriginalFilename() ), DEFAULT_FILENAME );
@@ -123,7 +124,7 @@ public class FileResourceController
 
         String contentMd5 = bytes.hash( Hashing.md5() ).toString();
 
-        FileResource fileResource = new FileResource( filename, contentType, contentLength, contentMd5, FileResourceDomain.DATA_VALUE );
+        FileResource fileResource = new FileResource( filename, contentType, contentLength, contentMd5, (fileStore) ? FileResourceDomain.DATA_FILES : FileResourceDomain.DATA_VALUE );
         fileResource.setAssigned( false );
         fileResource.setCreated( new Date() );
         fileResource.setUser( currentUserService.getCurrentUser() );
@@ -142,7 +143,7 @@ public class FileResourceController
 
         return webMessage;
     }
-    
+
     // -------------------------------------------------------------------------
     // Supportive methods
     // -------------------------------------------------------------------------
@@ -180,12 +181,12 @@ public class FileResourceController
         extends ByteSource
     {
         private MultipartFile file;
-        
+
         public MultipartFileByteSource( MultipartFile file )
         {
             this.file = file;
         }
-        
+
         @Override
         public InputStream openStream() throws IOException
         {
