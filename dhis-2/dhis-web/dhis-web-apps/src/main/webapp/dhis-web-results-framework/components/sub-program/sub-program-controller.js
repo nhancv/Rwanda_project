@@ -10,30 +10,48 @@ resultsFramework.controller('SubProgramController',
                 selectedSubProgram,
                 operationMode,
                 outputIndicatorGroups,
-                dataSets,
-                SubProgramFactory) {
+                outputDataSets,
+                //programs,
+                //resultsFrameworks,
+                SubProgramFactory,
+                MetaAttributesFactory,
+                RfUtils) {
     
+    $scope.fileNames = [];
     $scope.subProgramForm = {submitted: false};
     $scope.selectedProgram = selectedProgram;                
-    $scope.operationMode = operationMode;                
+    $scope.operationMode = operationMode;
     $scope.model = {    showAddSubProgramDiv: false,
                         showEditSubProgramDiv: false,
                         selectSize: 20,
-                        dataSets: dataSets,                        
-                        outputIndicatorGroups: outputIndicatorGroups
+                        outputDataSets: outputDataSets,                        
+                        outputIndicatorGroups: outputIndicatorGroups,
+                        metaAttributes: [],
+                        metaAttributeValues: {}
                     };
 
     if( selectedSubProgram && selectedSubProgram.id ){        
         SubProgramFactory.get(selectedSubProgram.id).then(function(sp){
             $scope.model.selectedSubProgram = sp;
             $scope.model.selectedSubProgram.outputs = sp.outputs ? sp.outputs : [];
-            $scope.model.selectedSubProgram.dataSets = sp.dataSets ? sp.dataSets : []; 
+            $scope.model.selectedSubProgram.dataSets = sp.dataSets ? sp.dataSets : [];
+            $scope.model.selectedSubProgram.attributeValues = sp.attributeValues ? sp.attributeValues : [];
+            $scope.model.metaAttributeValues = {};
+            angular.forEach($scope.model.selectedSubProgram.attributeValues, function(av){
+                $scope.model.metaAttributeValues[av.attribute.id] = av.value;
+            });
         });
     }
     else{
-        $scope.model.selectedSubProgram = {programm: {id: $scope.selectedProgram.id}, outputs: [], dataSets: []};
-    }
-       
+        $scope.model.selectedSubProgram = {programm: {id: $scope.selectedProgram.id}, outputs: [], dataSets: [], attributeValues: []};
+    }    
+            
+    MetaAttributesFactory.getAttributesForObject( 'subProgrammAttribute' ).then(function(attributes){
+        angular.forEach(attributes, function(att){
+            $scope.model.metaAttributes.push( att );
+        });         
+    });
+        
     $scope.interacted = function(field, form) {
         var status = false;
         if(!form){
@@ -52,7 +70,9 @@ resultsFramework.controller('SubProgramController',
         if( $scope.subProgramForm.$invalid ){            
             return false;
         }
-
+        
+        $scope.model.selectedSubProgram.attributeValues = RfUtils.processMetaAttributes($scope.model.metaAttributes, $scope.model.metaAttributeValues);
+        
         //form is valid, continue with adding
         SubProgramFactory.create($scope.model.selectedSubProgram).then(function(data){
             if (data.response.status === 'ERROR') {
@@ -83,6 +103,8 @@ resultsFramework.controller('SubProgramController',
         if( $scope.subProgramForm.$invalid ){
             return false;
         }
+        
+        $scope.model.selectedSubProgram.attributeValues = RfUtils.processMetaAttributes($scope.model.metaAttributes, $scope.model.metaAttributeValues);
         
         //form is valid, continue with adding
         SubProgramFactory.update($scope.model.selectedSubProgram).then(function(data){
@@ -117,7 +139,7 @@ resultsFramework.controller('SubProgramController',
 
         ModalService.showModal({}, modalOptions).then(function(){            
             SubProgramFactory.delete($scope.model.selectedSubProgram).then(function(){                
-                for(var i=0; i<$scope.model.programs.length; i++){
+                for(var i=0; i<$scope.selectedProgram.subProgramms.length; i++){
                     if( $scope.selectedProgram.subProgramms[i].id === $scope.model.selectedSubProgram.id ){
                         $scope.selectedProgram.subProgramms.splice(i,1);    
                         break;

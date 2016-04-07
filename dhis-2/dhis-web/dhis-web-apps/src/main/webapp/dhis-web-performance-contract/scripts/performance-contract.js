@@ -178,7 +178,7 @@ function getUserRoles()
     
     var def = $.Deferred();
     var promise = def.promise();
-    promise = promise.then( dhis2.tracker.getTrackerObject(null, 'USER_ROLES', '../api/me.json', 'fields=id,name,userCredentials[userRoles[id,authorities,dataSets[id]]]', 'sessionStorage', dhis2.pc.store) );
+    promise = promise.then( dhis2.tracker.getTrackerObject(null, 'USER_ROLES', '../api/me.json', 'fields=id,displayName,userCredentials[userRoles[id,authorities,programs,dataSets]]', 'sessionStorage', dhis2.pc.store) );
     promise = promise.done(function(){});    
     def.resolve();
 }

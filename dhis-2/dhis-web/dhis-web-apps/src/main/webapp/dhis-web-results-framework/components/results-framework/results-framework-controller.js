@@ -10,37 +10,65 @@ resultsFramework.controller('ResultsFrameworkController',
                 ModalService,
                 MetaDataFactory,
                 ResultsFrameworkFactory,
-                ProgramFactory) {
+                ProgramFactory,
+                DataSetFactory,
+                MetaAttributesFactory,
+                RfUtils) {
     
+    $scope.fileNames = [];
     $scope.model = {    showAddResultsFrameworkDiv: false,
                         showEditResultsFrameworkDiv: false,
                         showStructureResultsFrameworkDiv: false,
                         selectSize: 20,
                         resultsFrameworks: [],
-                        fullResultsFramework: {},
-                        selectedResultsFramework: {impacts: [], outcomes: [], outputs: [], programms: []},
+                        selectedResultsFramework: {impacts: [], outcomes: [], outputs: [], programms: [], dataSets: []},
                         indicatorGroups: [],
-                        programms: []
+                        programs: [],
+                        impactDataSets: [],
+                        outcomeDataSets: [],
+                        outputDataSets: [],
+                        metaDataCached: false,
+                        metaAttributes: [],
+                        metaAttributeValues: {},
+                        impactOutcomeDataSets: []
                     };
                     
     $scope.resultsFrameworkForm = {submitted: false};
     
-    ResultsFrameworkFactory.getAll().then(function(response){
-        $scope.model.resultsFrameworks = response.resultsFrameworks;
-    });
-    
-    ProgramFactory.getAll().then(function(response){
-        $scope.model.programms = response.programms;
-    });
-    
-    MetaDataFactory.getAll('indicatorGroups').then(function(idgs){
-        $scope.model.impactIndicatorGroups = $filter('filter')(idgs, {indicatorGroupType: "IMPACT"});
-        $scope.model.outcomeIndicatorGroups = $filter('filter')(idgs, {indicatorGroupType: "OUTCOME"});
-        $scope.model.outputIndicatorGroups = $filter('filter')(idgs, {indicatorGroupType: "OUTPUT"});
-    });
+    //watch for changes in ou mode - mode could be selected without notifcation to grid column generator
+    $scope.$watch('model.metaDataCached', function() {
+        if( $scope.model.metaDataCached ){            
+            MetaDataFactory.getAll('indicatorGroups').then(function(idgs){
+                $scope.model.impactIndicatorGroups = $filter('filter')(idgs, {indicatorGroupType: "IMPACT"});
+                $scope.model.outcomeIndicatorGroups = $filter('filter')(idgs, {indicatorGroupType: "OUTCOME"});
+                $scope.model.outputIndicatorGroups = $filter('filter')(idgs, {indicatorGroupType: "OUTPUT"});
+                
+                MetaAttributesFactory.getAttributesForObject( 'resultsFrameworkAttribute' ).then(function(attributes){
+                    angular.forEach(attributes, function(att){
+                        $scope.model.metaAttributes.push( att );
+                    });
+
+                    DataSetFactory.getAll().then(function(dss){
+                        $scope.model.impactDataSets = $filter('filter')(dss, {dataSetType: "IMPACT"});
+                        $scope.model.outcomeDataSets = $filter('filter')(dss, {dataSetType: "OUTCOME"});
+                        $scope.model.outputDataSets = $filter('filter')(dss, {dataSetType: "OUTPUT"});            
+                        $scope.model.impactOutcomeDataSets = $scope.model.impactDataSets.concat( $scope.model.outcomeDataSets );
+
+                        ProgramFactory.getAll().then(function(response){
+                            $scope.model.programs = response.programms;
+
+                            ResultsFrameworkFactory.getAll().then(function(response){
+                                $scope.model.resultsFrameworks = response.resultsFrameworks;
+                            });
+                        });
+                    });
+                });
+            });
+        }
+    });    
             
     $scope.showAddResultsFramework = function(){
-        $scope.model.selectedResultsFramework = {impacts: [], outcomes: [], outputs: [], programms: []};
+        $scope.model.selectedResultsFramework = {impacts: [], outcomes: [], outputs: [], programms: [], dataSets: []};
         $scope.model.showAddResultsFrameworkDiv = !$scope.model.showAddResultsFrameworkDiv;
         $scope.model.showStructureResultsFrameworkDiv = false;
         $scope.model.showEditResultsFrameworkDiv = false;
@@ -48,6 +76,11 @@ resultsFramework.controller('ResultsFrameworkController',
         
     $scope.showEditResultsFramework = function(){        
         $scope.model.selectedResultsFramework = ContextMenuSelectedItem.getSelectedItem();
+        $scope.model.metaAttributeValues = {};
+        angular.forEach($scope.model.selectedResultsFramework.attributeValues, function(av){
+            $scope.model.metaAttributeValues[av.attribute.id] = av.value;
+        });
+        
         $scope.model.showEditResultsFrameworkDiv = true;
         $scope.model.showAddResultsFrameworkDiv = false;
         $scope.model.showStructureResultsFrameworkDiv = false;        
@@ -91,7 +124,15 @@ resultsFramework.controller('ResultsFrameworkController',
                 });
             });
             
-            $scope.model.fullResultsFramework = response;
+            if($scope.model.frameworkStructure.length < 1){
+                var dialogOptions = {
+                    headerText: 'warning',
+                    bodyText: 'empty_results_framework'
+                };
+                DialogService.showDialog({}, dialogOptions).then(function(){
+                    $scope.hideResultsFrameworkDivs();
+                });
+            }
         });
         
         $scope.model.showStructureResultsFrameworkDiv = true;
@@ -141,12 +182,13 @@ resultsFramework.controller('ResultsFrameworkController',
         $scope.model.showStructureResultsFrameworkDiv = false;
     };
           
-    $scope.getSelectedResultsFramework = function(resultsFramework){
+    $scope.setSelectedResultsFramework = function(resultsFramework){
         $scope.model.selectedResultsFramework = resultsFramework;
         $scope.model.selectedResultsFramework.impacts = resultsFramework.impacts ?  resultsFramework.impacts : [];
         $scope.model.selectedResultsFramework.outcomes = resultsFramework.outcomes ?  resultsFramework.outcomes : [];
         $scope.model.selectedResultsFramework.outputs = resultsFramework.outputs ?  resultsFramework.outputs : [];
         $scope.model.selectedResultsFramework.programms = resultsFramework.programms ?  resultsFramework.programms : [];
+        $scope.model.selectedResultsFramework.dataSets = resultsFramework.dataSets ?  resultsFramework.dataSets : [];
         ContextMenuSelectedItem.setSelectedItem($scope.model.selectedResultsFramework);
     };        
             
@@ -168,6 +210,8 @@ resultsFramework.controller('ResultsFrameworkController',
         if( $scope.resultsFrameworkForm.$invalid ){
             return false;
         }
+        
+        $scope.model.selectedResultsFramework.attributeValues = RfUtils.processMetaAttributes($scope.model.metaAttributes, $scope.model.metaAttributeValues);
         
         //form is valid, continue with adding
         ResultsFrameworkFactory.create($scope.model.selectedResultsFramework).then(function(data){
@@ -200,6 +244,8 @@ resultsFramework.controller('ResultsFrameworkController',
             return false;
         }
 
+        $scope.model.selectedResultsFramework.attributeValues = RfUtils.processMetaAttributes($scope.model.metaAttributes, $scope.model.metaAttributeValues);
+        
         //form is valid, continue with adding
         ResultsFrameworkFactory.update($scope.model.selectedResultsFramework).then(function(data){
             if (data.response.status === 'ERROR') {

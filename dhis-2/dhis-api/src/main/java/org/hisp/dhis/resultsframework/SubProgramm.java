@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.hisp.dhis.common.BaseIdentifiableObject;
+import org.hisp.dhis.common.BaseNameableObject;
 import org.hisp.dhis.common.DxfNamespaces;
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.common.MergeMode;
@@ -53,7 +54,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
  */
 @JacksonXmlRootElement( localName = "subProgramm", namespace = DxfNamespaces.DXF_2_0 )
 public class SubProgramm
-    extends BaseIdentifiableObject
+    extends BaseNameableObject
 {
 
     private String description;

@@ -99,4 +99,86 @@ var resultsFrameworkDirectives = angular.module('resultsFrameworkDirectives', []
             });
         }
     };
+})
+
+.directive('metaDataCached', function ($timeout) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+            
+            $(document).on("metaDataCached", listenerFunction);
+
+            //listen to metaDataCached, and inform angular 
+            function listenerFunction(e) {
+                $timeout(function () {
+                    scope.model.metaDataCached = e.message;
+                    scope.$apply();
+                });
+            }
+        }
+    };
+})
+
+.directive('d3FileInput', function(FileService, DialogService){
+    
+    return {
+        restrict: "A",
+        scope: {
+            d3FileInput: '=',
+            d3FileInputName: '='
+        },
+        link: function (scope, element, attrs) {
+            var attributeId = attrs.inputFieldId;            
+            var updateModel = function () {
+                FileService.upload(element[0].files[0], true).then(function(data){                    
+                    if(data && data.status === 'OK' && 
+                            data.response && 
+                            data.response.fileResource && 
+                            data.response.fileResource.id && 
+                            data.response.fileResource.name){                                            
+                        scope.d3FileInput[attributeId] = data.response.fileResource.id;   
+                        scope.d3FileInputName[attributeId] = data.response.fileResource.name;                        
+                    }
+                    else{
+                        var dialogOptions = {
+                            headerText: 'error',
+                            bodyText: 'file_upload_failed'
+                        };		
+                        DialogService.showDialog({}, dialogOptions);
+                    }                    
+                });                 
+            };             
+            element.bind('change', updateModel);            
+        }
+    };    
+})
+
+.directive('d3FileInputDelete', function($parse, $timeout, FileService, DialogService){
+    
+    return {
+        restrict: "A",
+        link: function (scope, element, attrs) {
+            var valueGetter = $parse(attrs.d2FileInputDelete);
+            var nameGetter = $parse(attrs.d2FileInputName);
+            var nameSetter = nameGetter.assign;
+            
+            if(valueGetter(scope)) {
+                FileService.get(valueGetter(scope)).then(function(data){
+                    if(data && data.name && data.id){
+                        $timeout(function(){
+                            nameSetter(scope, data.name);
+                            scope.$apply();
+                        });
+                    }
+                    else{
+                        var dialogOptions = {
+                            headerText: 'error',
+                            bodyText: 'file_missing'
+                        };		
+                        DialogService.showDialog({}, dialogOptions);
+                    }                    
+                });                 
+            }
+        }
+    };
 });  

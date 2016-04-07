@@ -74,6 +74,9 @@
     	  <input type="checkbox" id="optionAttribute" name="optionAttribute" value="true" /><label for="optionAttribute">$i18n.getString( 'option' )</label> <br />
     	  <input type="checkbox" id="optionSetAttribute" name="optionSetAttribute" value="true" /><label for="optionSetAttribute">$i18n.getString( 'option_set' )</label> <br />
 		  <input type="checkbox" id="projectAttribute" name="projectAttribute" value="true" /><label for="projectAttribute">$i18n.getString( 'project' )</label> <br />
+		  <input type="checkbox" id="resultsFrameworkAttribute" name="resultsFrameworkAttribute" value="true" /><label for="resultsFrameworkAttribute">$i18n.getString( 'results_framework' )</label> <br />
+		  <input type="checkbox" id="programmAttribute" name="programmAttribute" value="true" /><label for="programmAttribute">$i18n.getString( 'programm' )</label> <br />
+		  <input type="checkbox" id="subProgrammAttribute" name="subProgrammAttribute" value="true" /><label for="subProgrammAttribute">$i18n.getString( 'sub_programm' )</label> <br />
 		</td>
 	</tr>
 

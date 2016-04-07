@@ -31,12 +31,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.hisp.dhis.common.BaseIdentifiableObject;
+import org.hisp.dhis.common.BaseNameableObject;
 import org.hisp.dhis.common.DxfNamespaces;
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.common.MergeMode;
 import org.hisp.dhis.common.annotation.Scanned;
 import org.hisp.dhis.common.view.DetailedView;
 import org.hisp.dhis.common.view.ExportView;
+import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.indicator.IndicatorGroup;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -52,7 +54,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
  */
 @JacksonXmlRootElement( localName = "resultsFramework", namespace = DxfNamespaces.DXF_2_0 )
 public class ResultsFramework
-    extends BaseIdentifiableObject
+    extends BaseNameableObject
 {
 
     private String description;
@@ -70,6 +72,9 @@ public class ResultsFramework
 
     @Scanned
     private Set<Programm> programms = new HashSet<>();
+    
+    @Scanned
+    private Set<DataSet> dataSets = new HashSet<>();
 
     // -------------------------------------------------------------------------
     // Constructors
@@ -209,6 +214,27 @@ public class ResultsFramework
     public void setProgramms( Set<Programm> programms )
     {
         this.programms = programms;
+    }    
+
+    /**
+     * @return the dataSets
+     */
+    @JsonProperty( "dataSets" )
+    @JsonSerialize( contentAs = BaseIdentifiableObject.class )
+    @JsonView( { DetailedView.class, ExportView.class } )
+    @JacksonXmlElementWrapper( localName = "dataSets", namespace = DxfNamespaces.DXF_2_0 )
+    @JacksonXmlProperty( localName = "dataSets", namespace = DxfNamespaces.DXF_2_0 )
+    public Set<DataSet> getDataSets()
+    {
+        return dataSets;
+    }
+
+    /**
+     * @param dataSets the dataSets to set
+     */
+    public void setDataSets( Set<DataSet> dataSets )
+    {
+        this.dataSets = dataSets;
     }
 
     @Override
@@ -228,6 +254,7 @@ public class ResultsFramework
                 outcomes = resultsFramework.getOutcomes();
                 outputs = resultsFramework.getOutputs();
                 programms = resultsFramework.getProgramms();
+                dataSets = resultsFramework.getDataSets();
             }
             else if ( mergeMode.isMerge() )
             {
@@ -238,6 +265,7 @@ public class ResultsFramework
                 outcomes = resultsFramework.getOutcomes() == null ? outcomes : resultsFramework.getOutcomes();
                 outputs = resultsFramework.getOutputs() == null ? outputs : resultsFramework.getOutputs();
                 programms = resultsFramework.getProgramms() == null ? programms : resultsFramework.getProgramms();
+                dataSets = resultsFramework.getOutputs() == null ? dataSets : resultsFramework.getDataSets();
             }
         }
     }

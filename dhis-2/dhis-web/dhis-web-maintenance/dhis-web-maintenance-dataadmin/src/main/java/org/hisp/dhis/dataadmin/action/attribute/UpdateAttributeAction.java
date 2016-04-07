@@ -239,6 +239,27 @@ public class UpdateAttributeAction
         this.projectAttribute = projectAttribute;
     }
 
+    private boolean resultsFrameworkAttribute;
+    
+    public void setResultsFrameworkAttribute( boolean resultsFrameworkAttribute )
+    {
+        this.resultsFrameworkAttribute = resultsFrameworkAttribute;
+    }
+    
+    private boolean programmAttribute;
+    
+    public void setProgrammAttribute( boolean programmAttribute )
+    {
+        this.programmAttribute = programmAttribute;
+    }
+    
+    private boolean subProgrammAttribute;
+    
+    public void setSubProgrammAttribute( boolean subProgrammAttribute )
+    {
+        this.subProgrammAttribute = subProgrammAttribute;
+    }
+    
     private String optionSetUid;
 
     public void setOptionSetUid( String optionSetUid )
@@ -286,6 +307,9 @@ public class UpdateAttributeAction
             attribute.setOptionAttribute( optionAttribute );
             attribute.setOptionSetAttribute( optionSetAttribute );
             attribute.setProjectAttribute( projectAttribute );
+            attribute.setResultsFrameworkAttribute( resultsFrameworkAttribute );
+            attribute.setProgrammAttribute( programmAttribute );
+            attribute.setSubProgrammAttribute( subProgrammAttribute );
 
             attributeService.updateAttribute( attribute );
 

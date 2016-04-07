@@ -56,8 +56,18 @@
         foreign-key="fk_project_subprogramid" />
     </set>
     
-    <many-to-one name="budgetDataSet" class="org.hisp.dhis.dataset.DataSet" column="datasetid"
-      foreign-key="fk_budgetdataset_project" not-null="true" />
+    <many-to-one name="budgetExecutionDataSet" class="org.hisp.dhis.dataset.DataSet" column="budgetexecutiondatasetid"
+      foreign-key="fk_budgetexecutiondataset_project"/>
+    
+    <many-to-one name="budgetForecastDataSet" class="org.hisp.dhis.dataset.DataSet" column="budgetforecastdatasetid"
+      foreign-key="fk_budgetforecastdataset_project"/>
+    
+    <!-- Dynamic attribute values -->
+    <set name="attributeValues" table="projectattributevalues" cascade="delete-orphan">
+      <cache usage="read-write" />
+      <key column="projectid" />
+      <many-to-many class="org.hisp.dhis.attribute.AttributeValue" column="attributevalueid" unique="true" />
+    </set>
         
   </class>
 </hibernate-mapping>

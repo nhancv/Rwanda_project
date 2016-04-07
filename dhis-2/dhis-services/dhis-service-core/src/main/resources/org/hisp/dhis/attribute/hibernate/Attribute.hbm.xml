@@ -68,6 +68,12 @@
     <property name="optionSetAttribute" not-null="false" />
     
     <property name="projectAttribute" not-null="false" />
+    
+    <property name="resultsFrameworkAttribute" not-null="false" />
+    
+    <property name="programmAttribute" not-null="false" />
+    
+    <property name="subProgrammAttribute" not-null="false" />
 
     <property name="sortOrder" />
 

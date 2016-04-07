@@ -48,6 +48,21 @@
       <many-to-many class="org.hisp.dhis.resultsframework.Programm" column="programmid"
         foreign-key="fk_resultsframework_programmid" />
     </set>
+    
+    <set name="dataSets" table="resultsframeworkdatasets">
+      <cache usage="read-write" />
+      <key column="resultsframeworkid" foreign-key="fk_resultsframeworkdatasets_resultsframeworkid" />
+      <many-to-many class="org.hisp.dhis.dataset.DataSet" column="datatsetid"
+        foreign-key="fk_resultsframework_datasetid" />
+    </set>
+    
+    <!-- Dynamic attribute values -->
+    <set name="attributeValues" table="resultsframeworkattributevalues" cascade="delete-orphan">
+      <cache usage="read-write" />
+      <key column="resultsframeworkid" />
+      <many-to-many class="org.hisp.dhis.attribute.AttributeValue" column="attributevalueid" unique="true" />
+    </set>
+    
         
   </class>
 </hibernate-mapping>

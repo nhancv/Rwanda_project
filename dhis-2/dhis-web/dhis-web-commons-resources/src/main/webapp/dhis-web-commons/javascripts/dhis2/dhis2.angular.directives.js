@@ -414,6 +414,7 @@ var d2Directives = angular.module('d2Directives', [])
         }
     };
 })
+
 .directive('d2Audit', function () {
     return {
         restrict: 'E',

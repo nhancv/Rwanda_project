@@ -57,7 +57,6 @@ var d2Services = angular.module('d2Services', ['ngResource'])
                     translations = response.keys;
                     deferred.resolve(translations);
                 });
-                return deferred.promise;
             }
             else {
                 getLocale().then(function (locale) {
@@ -66,8 +65,9 @@ var d2Services = angular.module('d2Services', ['ngResource'])
                         deferred.resolve(translations);
                     });
                 });
-                return deferred.promise;
             }
+            
+            return deferred.promise;
         };
     })
 
@@ -232,10 +232,14 @@ var d2Services = angular.module('d2Services', ['ngResource'])
                 return dateAfterOffset;
             },
             splitDate: function(dateValue){
+            	var calendarSetting = CalendarService.getSetting();
                 if(!dateValue){
                     return;
                 }
                 return {year: moment(dateValue, calendarSetting.momentFormat).year(), month: moment(dateValue, calendarSetting.momentFormat).month(), week: moment(dateValue, calendarSetting.momentFormat).week(), day: moment(dateValue, calendarSetting.momentFormat).day()};
+            },
+            getCeilYears: function(startDate, endDate){
+            	return Math.ceil(moment(endDate).diff(startDate, 'years', true));        
             }
         };
     })
@@ -1015,9 +1019,12 @@ var d2Services = angular.module('d2Services', ['ngResource'])
                 });
                 return promise;
             },
-            upload: function(file){
+            upload: function(file, fileStore){
                 var formData = new FormData();
                 formData.append('file', file);
+                if( fileStore ){
+                	formData.append('fileStore', fileStore);
+                }
                 var headers = {transformRequest: angular.identity, headers: {'Content-Type': undefined}};
                 var promise = $http.post('../api/fileResources', formData, headers).then(function(response){
                     return response.data;

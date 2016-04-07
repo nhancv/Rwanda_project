@@ -17,6 +17,18 @@
     <hr>
     <div class="row">
         <div ng-if="!model.showEditProject && !model.showAddProjectDiv">
+            
+            <!-- context menu begins -->
+            <div id="contextMenu" class="contextMenu" style="width: 250px;">
+                <ul id="contextMenuItems" class="contextMenuItems">
+                    <li><a href ng-click="showEditProject()"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span>&nbsp;&nbsp;{{'edit'| translate}}</a></li>
+                    <li><a href ng-click="showBudgetForecast()"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>&nbsp;&nbsp;{{'budget_forecast'| translate}}</a></li>
+                    <li class="divider"></li>
+                    <li><a href ng-click="contributionToResultFramework()"><span class="glyphicon glyphicon-align-left" aria-hidden="true"></span>&nbsp;&nbsp;{{'contribution_result_framework'| translate}}</a></li>
+                </ul>
+            </div>
+            <!-- context menu ends -->
+            
             <div class="col-sm-12 hideInPrint">
                 <div ng-if="model.projects.length < 1" class="alert alert-warning">{{'no_project_available'| translate}}</div> 
                 <div ng-if="model.projects.length > 0">
@@ -35,7 +47,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr title="{{'edit'| translate}}" ng-click="showEditProject(project)" ng-repeat="project in model.projects | orderBy: 'name'">
+                            <tr title="{{'edit'| translate}}" 
+                                ng-click="setSelectedProject(project)"
+                                ng-repeat="project in model.projects | orderBy: 'name'"
+                                d2-context-menu 
+                                selected-item={{project}}>
                                 <td>
                                     {{project.name}}
                                 </td>
@@ -56,7 +72,7 @@
         <form name="projectForm" novalidate>
             <div class="col-sm-12">
                 <div ng-if="model.showAddProjectDiv || model.showEditProject">
-                    <div ng-include="'components/project/project-form.html'"></div>                            
+                    <div ng-include="'components/project/project-form.html'"></div>
                 </div>
                 <div class="vertical-spacing" ng-if="model.showAddProjectDiv || model.showEditProject">                
                     <button type="button" class="btn btn-primary" ng-click="addProject()" ng-if="model.showAddProjectDiv">{{'save'| translate}} </button>

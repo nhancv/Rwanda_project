@@ -4,13 +4,19 @@
 resultsFramework.controller('ProjectController', 
         function($scope,
                 $filter,
+                $translate,
+                $modal,
                 DialogService, 
                 ModalService, 
                 ProjectFactory, 
                 MetaDataFactory,
                 DataSetFactory,
-                MetaAttributesFactory) {
+                MetaAttributesFactory,
+                ContextMenuSelectedItem,
+                RfUtils,
+                DateUtils) {
     
+    $scope.fileNames = [];
     $scope.maxOptionSize = 30;
     $scope.model = {    showAddProjectDiv: false,
                         showEditProject: false,
@@ -18,44 +24,82 @@ resultsFramework.controller('ProjectController',
                         projects: [],
                         donorList: [],
                         selectedProject: {},
-                        budgetDataSets: [],
-                        indicatorGroups: []
+                        budgetExecutionDataSets: [],
+                        budgetForecastDataSets: [],
+                        indicatorGroups: [],
+                        metaAttributes: [],
+                        metaAttributeValues: {}
                     };
 
     $scope.projectForm = {submitted: false};
     
     MetaDataFactory.getAll('indicatorGroups').then(function(idgs){
-        $scope.model.impactIndicatorGroups = $filter('filter')(idgs, {indicatorGroupType: "IMPACT"});;
-        $scope.model.outcomeIndicatorGroups = $filter('filter')(idgs, {indicatorGroupType: "OUTCOME"});;
-        $scope.model.outputIndicatorGroups = $filter('filter')(idgs, {indicatorGroupType: "OUTPUT"});;
-    });
-    
-    ProjectFactory.getAll().then(function(response){
-        $scope.model.projects = response.projects ? response.projects : [];
-    });
-    
-    DataSetFactory.getBudgetDataSets().then(function(ds){
-        $scope.model.budgetDataSets = ds ? ds : [];
-    });
-    
-    MetaAttributesFactory.getProjectAttributes().then(function(response){
-        if(response && response.attributes){            
-            angular.forEach(response.attributes, function(att){
+        $scope.model.impactIndicatorGroups = $filter('filter')(idgs, {indicatorGroupType: "IMPACT"});
+        $scope.model.outcomeIndicatorGroups = $filter('filter')(idgs, {indicatorGroupType: "OUTCOME"});
+        $scope.model.outputIndicatorGroups = $filter('filter')(idgs, {indicatorGroupType: "OUTPUT"});
+        
+        MetaAttributesFactory.getAttributesForObject( 'projectAttribute' ).then(function(attributes){
+            angular.forEach(attributes, function(att){
                 if(att.code === 'donorList' && att.optionSet && att.optionSet.options && att.optionSet.options.length > 0){
                     $scope.model.donorList = att.optionSet.options;
                 }
+                else{
+                    $scope.model.metaAttributes.push( att );
+                }
             });
-        }
+            
+            DataSetFactory.getAll().then(function(dss){
+                $scope.model.budgetExecutionDataSets = $filter('filter')(dss, {dataSetType: "BUDGETEXECUTION"});
+                $scope.model.budgetForecastDataSets = $filter('filter')(dss, {dataSetType: "BUDGETFORECAST"});
+                
+                ProjectFactory.getAll().then(function(response){
+                    $scope.model.projects = response.projects ? response.projects : [];
+                });                
+            });            
+        });
     });
     
     $scope.showAddProject = function(){
         $scope.model.showAddProjectDiv = !$scope.model.showAddProjectDiv;
     };
     
-    $scope.showEditProject = function(project){
-        $scope.model.selectedProject = project;
+    $scope.showEditProject = function(){
+        $scope.model.metaAttributeValues = {};
+        $scope.model.selectedProject = ContextMenuSelectedItem.getSelectedItem();        
+        angular.forEach($scope.model.selectedProject.attributeValues, function(av){
+            $scope.model.metaAttributeValues[av.attribute.id] = av.value;
+        });        
         $scope.model.showAddProjectDiv = false;
         $scope.model.showEditProject = true;
+    };
+    
+    $scope.showBudgetForecast = function(){
+        $scope.model.selectedProject = ContextMenuSelectedItem.getSelectedItem();        
+        if(!$scope.model.selectedProject.budgetForecastDataSet) {
+            var dialogOptions = {
+                headerText: 'error',
+                bodyText: $translate.instant('budget_forecast_data_set_missing')
+            };
+
+            DialogService.showDialog({}, dialogOptions);
+            
+            return;
+        }
+        
+        $scope.model.forecastYears = DateUtils.getCeilYears($scope.model.selectedProject.startDate,$scope.model.selectedProject.endDate);
+        $scope.model.forecastStartYear = DateUtils.splitDate($scope.model.selectedProject.startDate);
+        
+        var dialogOptions = {
+            headerText: 'Budget Forecast',
+            bodyText: 'dialog for entering buget breakdown for ' + $scope.model.forecastYears + ' years is coming...'
+        };
+
+        DialogService.showDialog({}, dialogOptions);
+    };
+    
+    $scope.setSelectedProject = function(project){
+        $scope.model.selectedProject = project;
+        ContextMenuSelectedItem.setSelectedItem($scope.model.selectedProject);
     };
     
     $scope.hideAddProject = function(){
@@ -82,6 +126,8 @@ resultsFramework.controller('ProjectController',
         if( $scope.projectForm.$invalid ){            
             return false;
         }
+        
+        $scope.model.selectedProject.attributeValues = RfUtils.processMetaAttributes($scope.model.metaAttributes, $scope.model.metaAttributeValues);
         
         //form is valid, continue with adding
         ProjectFactory.create($scope.model.selectedProject).then(function(data){
@@ -113,6 +159,8 @@ resultsFramework.controller('ProjectController',
         if( $scope.projectForm.$invalid ){
             return false;
         }
+        
+        $scope.model.selectedProject.attributeValues = RfUtils.processMetaAttributes($scope.model.metaAttributes, $scope.model.metaAttributeValues);
         
         //form is valid, continue with adding
         ProjectFactory.update($scope.model.selectedProject).then(function(data){
@@ -163,6 +211,26 @@ resultsFramework.controller('ProjectController',
                 };
                 DialogService.showDialog({}, dialogOptions);
             });
+        });
+    };
+    
+    $scope.contributionToResultFramework = function(){        
+        $scope.model.selectedProject = ContextMenuSelectedItem.getSelectedItem();        
+        var modalInstance = $modal.open({
+            templateUrl: 'components/project/project-result-framework.html',
+            controller: 'ProjectResultFrameworkController',
+            resolve: {
+                selectedProject: function () {
+                    return $scope.model.selectedProject;
+                }
+            }
+        });
+
+        modalInstance.result.then(function (program) {
+            if (angular.isObject(program)) {
+                $scope.model.selectedProgram = program;
+            }
+        }, function () {
         });
     };
     

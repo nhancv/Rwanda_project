@@ -33,5 +33,5 @@ package org.hisp.dhis.resultsframework;
  */
 public enum ProjectStatus
 {
-    APPROVED, CLOSED, FORCAST, STARTED
+    APPROVED, CLOSED, FORECAST, STARTED
 }

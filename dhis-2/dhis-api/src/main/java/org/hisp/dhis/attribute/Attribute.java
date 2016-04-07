@@ -28,11 +28,10 @@ package org.hisp.dhis.attribute;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import com.google.common.base.MoreObjects;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import org.hisp.dhis.common.BaseIdentifiableObject;
 import org.hisp.dhis.common.DxfNamespaces;
 import org.hisp.dhis.common.IdentifiableObject;
@@ -55,15 +54,20 @@ import org.hisp.dhis.organisationunit.OrganisationUnitGroup;
 import org.hisp.dhis.organisationunit.OrganisationUnitGroupSet;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramStage;
+import org.hisp.dhis.resultsframework.Programm;
+import org.hisp.dhis.resultsframework.Project;
+import org.hisp.dhis.resultsframework.ResultsFramework;
+import org.hisp.dhis.resultsframework.SubProgramm;
 import org.hisp.dhis.trackedentity.TrackedEntity;
 import org.hisp.dhis.trackedentity.TrackedEntityAttribute;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserGroup;
-import org.hisp.dhis.resultsframework.Project;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.google.common.base.MoreObjects;
 
 /**
  * @author Morten Olav Hansen <mortenoh@gmail.com>
@@ -113,6 +117,12 @@ public class Attribute
     private boolean optionSetAttribute;
     
     private boolean projectAttribute;
+    
+    private boolean resultsFrameworkAttribute;
+    
+    private boolean programmAttribute;
+    
+    private boolean subProgrammAttribute;
 
     private boolean mandatory;
 
@@ -139,7 +149,7 @@ public class Attribute
         return 31 * super.hashCode() + Objects.hash( valueType, dataElementAttribute, dataElementGroupAttribute, indicatorAttribute, indicatorGroupAttribute,
             dataSetAttribute, organisationUnitAttribute, organisationUnitGroupAttribute, organisationUnitGroupSetAttribute, userAttribute, userGroupAttribute,
             programAttribute, programStageAttribute, trackedEntityAttribute, trackedEntityAttributeAttribute, categoryOptionAttribute, categoryOptionGroupAttribute,
-            mandatory, unique, optionSet, optionAttribute, projectAttribute );
+            mandatory, unique, optionSet, optionAttribute, projectAttribute, resultsFrameworkAttribute, programmAttribute, subProgrammAttribute  );
     }
 
     @Override
@@ -179,6 +189,9 @@ public class Attribute
             && Objects.equals( this.categoryOptionGroupAttribute, other.categoryOptionGroupAttribute )
             && Objects.equals( this.optionAttribute, other.optionAttribute )
             && Objects.equals( this.projectAttribute, other.projectAttribute )
+            && Objects.equals( this.resultsFrameworkAttribute, other.resultsFrameworkAttribute )
+            && Objects.equals( this.programmAttribute, other.programmAttribute )
+            && Objects.equals( this.subProgrammAttribute, other.subProgrammAttribute )
             && Objects.equals( this.mandatory, other.mandatory )
             && Objects.equals( this.unique, other.unique )
             && Objects.equals( this.optionSet, other.optionSet );
@@ -482,6 +495,45 @@ public class Attribute
     {
         this.projectAttribute = projectAttribute;
     }
+    
+    @JsonProperty
+    @JsonView( { DetailedView.class, ExportView.class } )
+    @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
+    public boolean isResultsFrameworkAttribute()
+    {
+        return resultsFrameworkAttribute;
+    }
+
+    public void setResultsFrameworkAttribute( boolean resultsFrameworkAttribute )
+    {
+        this.resultsFrameworkAttribute = resultsFrameworkAttribute;
+    }
+
+    @JsonProperty
+    @JsonView( { DetailedView.class, ExportView.class } )
+    @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
+    public boolean isProgrammAttribute()
+    {
+        return programmAttribute;
+    }
+
+    public void setProgrammAttribute( boolean programmAttribute )
+    {
+        this.programmAttribute = programmAttribute;
+    }
+    
+    @JsonProperty
+    @JsonView( { DetailedView.class, ExportView.class } )
+    @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
+    public boolean isSubProgrammAttribute()
+    {
+        return subProgrammAttribute;
+    }
+
+    public void setSubProgrammAttribute( boolean subProgrammAttribute )
+    {
+        this.subProgrammAttribute = subProgrammAttribute;
+    }
 
     @JsonProperty
     @JsonView( { DetailedView.class, ExportView.class } )
@@ -534,6 +586,9 @@ public class Attribute
         if ( optionAttribute ) klasses.add( Option.class );
         if ( optionSetAttribute ) klasses.add( OptionSet.class );
         if ( projectAttribute ) klasses.add( Project.class );
+        if ( resultsFrameworkAttribute ) klasses.add( ResultsFramework.class );
+        if ( programmAttribute ) klasses.add( Programm.class );
+        if ( subProgrammAttribute ) klasses.add( SubProgramm.class );
 
         return klasses;
     }
@@ -567,6 +622,9 @@ public class Attribute
             optionAttribute = attribute.isOptionAttribute();
             optionSetAttribute = attribute.isOptionSetAttribute();
             projectAttribute = attribute.isProjectAttribute();
+            resultsFrameworkAttribute = attribute.isResultsFrameworkAttribute();
+            programmAttribute = attribute.isProgrammAttribute();
+            subProgrammAttribute = attribute.isSubProgrammAttribute();
             mandatory = attribute.isMandatory();
 
             if ( mergeMode.isReplace() )
@@ -605,6 +663,9 @@ public class Attribute
             .add( "categoryOptionAttribute", categoryOptionAttribute )
             .add( "categoryOptionGroupAttribute", categoryOptionGroupAttribute )
             .add( "projectAttribute", projectAttribute )
+            .add( "resultsFrameworkAttribute", resultsFrameworkAttribute )
+            .add( "programmAttribute", programmAttribute )
+            .add( "subProgrammAttribute", subProgrammAttribute )
             .add( "mandatory", mandatory )
             .toString();
     }

@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.hisp.dhis.common.BaseIdentifiableObject;
+import org.hisp.dhis.common.BaseNameableObject;
 import org.hisp.dhis.common.DxfNamespaces;
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.common.MergeMode;
@@ -53,7 +54,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
  */
 @JacksonXmlRootElement( localName = "project", namespace = DxfNamespaces.DXF_2_0 )
 public class Project
-    extends BaseIdentifiableObject
+    extends BaseNameableObject
 {
     private String description;    
     
@@ -81,7 +82,9 @@ public class Project
     
     private ProjectStatus status;
     
-    private DataSet budgetDataSet;
+    private DataSet budgetExecutionDataSet;
+    
+    private DataSet budgetForecastDataSet;
 
     @Scanned
     private Set<SubProgramm> subProgramms = new HashSet<>();
@@ -356,22 +359,41 @@ public class Project
     }
     
     /**
-     * @return the budgetDataSet
+     * @return the budgetExecutionDataSet
      */
     @JsonProperty
     @JsonSerialize( as = BaseIdentifiableObject.class )
     @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
-    public DataSet getBudgetDataSet()
+    public DataSet getBudgetExecutionDataSet()
     {
-        return budgetDataSet;
+        return budgetExecutionDataSet;
     }
 
     /**
-     * @param budgetDataSet the budgetDataSet to set
+     * @param budgetExecutionDataSet the budgetExecutionDataSet to set
      */
-    public void setBudgetDataSet( DataSet budgetDataSet )
+    public void setBudgetExecutionDataSet( DataSet budgetExecutionDataSet )
     {
-        this.budgetDataSet = budgetDataSet;
+        this.budgetExecutionDataSet = budgetExecutionDataSet;
+    }
+    
+    /**
+     * @return the budgetForecastDataSet
+     */
+    @JsonProperty
+    @JsonSerialize( as = BaseIdentifiableObject.class )
+    @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
+    public DataSet getBudgetForecastDataSet()
+    {
+        return budgetForecastDataSet;
+    }
+
+    /**
+     * @param budgetForecastDataSet the budgetForecastDataSet to set
+     */
+    public void setBudgetForecastDataSet( DataSet budgetForecastDataSet )
+    {
+        this.budgetForecastDataSet = budgetForecastDataSet;
     }
 
     @Override
@@ -399,6 +421,8 @@ public class Project
                 extensionPossible = project.getExtensionPossible();
                 status = project.getStatus();
                 subProgramms = project.getSubProgramms();
+                budgetExecutionDataSet = project.getBudgetExecutionDataSet();
+                budgetForecastDataSet = project.getBudgetForecastDataSet();
             }
             else if ( mergeMode.isMerge() )
             {
@@ -417,6 +441,8 @@ public class Project
                 extensionPossible = project.getExtensionPossible() == null ? extensionPossible : project.getExtensionPossible();
                 status = project.getStatus() == null ? status : project.getStatus();
                 subProgramms = project.getSubProgramms() == null ? subProgramms : project.getSubProgramms();
+                budgetExecutionDataSet = project.getBudgetExecutionDataSet() == null ? budgetExecutionDataSet : project.getBudgetExecutionDataSet();
+                budgetForecastDataSet = project.getBudgetForecastDataSet() == null ? budgetForecastDataSet : project.getBudgetForecastDataSet();
             }
         }
     }

@@ -10,7 +10,7 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
     var store = new dhis2.storage.Store({
         name: "dhis2rf",
         adapters: [dhis2.storage.IndexedDBAdapter, dhis2.storage.DomSessionStorageAdapter, dhis2.storage.InMemoryAdapter],
-        objectStores: ['dataSets', 'optionSets', 'dataElementGroups', 'dataElementGroupSets', 'indicatorGroups', 'indicatorGroupSets', 'categoryCombos', 'constants']
+        objectStores: ['dataSets', 'optionSets', 'dataElementGroups', 'dataElementGroupSets', 'indicatorGroups', 'indicatorGroupSets', 'categoryCombos', 'constants', 'attributes']
     });
     return{
         currentStore: store
@@ -151,27 +151,7 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
                     var dataSets = [];
                     angular.forEach(dss, function(ds){                            
                         if( userHasValidRole(ds, userRoles) ){
-                            dataSets.push(ds);
-                        }
-                    });
-                    $rootScope.$apply(function(){
-                        def.resolve(dataSets);
-                    });
-                });
-            });            
-            return def.promise;            
-        },
-        getBudgetDataSets: function(){            
-            var roles = SessionStorageService.get('USER_ROLES');
-            var userRoles = roles && roles.userCredentials && roles.userCredentials.userRoles ? roles.userCredentials.userRoles : [];
-            var def = $q.defer();
-            
-            RFStorageService.currentStore.open().done(function(){
-                RFStorageService.currentStore.getAll('dataSets').done(function(dss){
-                    var dataSets = [];
-                    angular.forEach(dss, function(ds){                            
-                        if( userHasValidRole(ds, userRoles) && ds.budgetDataSet){
-                            dataSets.push({id: ds.id, name: ds.name});
+                            dataSets.push({id: ds.id, name: ds.name, dataSetType: ds.dataSetType});
                         }
                     });
                     $rootScope.$apply(function(){
@@ -267,7 +247,7 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
             var def = $q.defer();            
             RFStorageService.currentStore.open().done(function(){
                 RFStorageService.currentStore.getAll(store).done(function(objs){                    
-                    objs = orderByFilter(objs, '-name').reverse();                    
+                    objs = orderByFilter(objs, '-displayName').reverse();                    
                     $rootScope.$apply(function(){
                         def.resolve(objs);
                     });
@@ -283,7 +263,15 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
     return {
         
         get: function(uid){            
-            var promise = $http.get('../api/resultsFrameworks/' + uid + '.json?fields=id,name,code,description,active,impacts[id,name,indicators[name]],outcomes[id,name,indicators[name]],outputs[id,name,indicators[name]],programms[id,name,code,description,outcomes[id,name,indicators[name]],outputs[id,name,indicators[name]],subProgramms[id,name,code,description,outputs[id,name,indicators[name]]]]').then(function(response){               
+            var promise = $http.get('../api/resultsFrameworks/' + uid + '.json?fields=id,name,code,description,active,impacts[id,name,indicators[name]],outcomes[id,name,indicators[name]],outputs[id,name,indicators[name]],programms[id,name,code,description,outcomes[id,name,indicators[name]],outputs[id,name,indicators[name]],subProgramms[id,name,code,description,outputs[id,name,indicators[name]]]],attributeValues[value,attribute[id,name,code]]').then(function(response){               
+                return response.data;
+            }, function(response){
+                RfUtils.errorNotifier(response);
+            });            
+            return promise;
+        },
+        getActive: function(){            
+            var promise = $http.get('../api/resultsFrameworks.json?filter=active:eq:true&fields=id,name,code,description,active,impacts[id,name],outcomes[id,name],outputs[id,name],programms[id,name,code,description,outcomes[id,name],outputs[id,name],subProgramms[id,name,code,description,outputs[id,name]]],attributeValues[value,attribute[id,name,code]]&paging=false').then(function(response){               
                 return response.data;
             }, function(response){
                 RfUtils.errorNotifier(response);
@@ -291,7 +279,7 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
             return promise;
         },
         getAll: function(){            
-            var promise = $http.get('../api/resultsFrameworks.json?fields=id,name,code,description,active,impacts[id,name],outcomes[id,name],outputs[id,name],programms[id,name,code,description,outcomes[id,name],outputs[id,name],subProgramms[id,name,code,description,outputs[id,name]]]&paging=false').then(function(response){               
+            var promise = $http.get('../api/resultsFrameworks.json?fields=id,name,code,description,active,impacts[id,name],outcomes[id,name],outputs[id,name],programms[id,name,code,description,outcomes[id,name],outputs[id,name],subProgramms[id,name,code,description,outputs[id,name]]],attributeValues[value,attribute[id,name,code]]&paging=false').then(function(response){               
                 return response.data;
             }, function(response){
                 RfUtils.errorNotifier(response);
@@ -324,7 +312,7 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
     return {
         
         get: function(uid){            
-            var promise = $http.get('../api/programms/' + uid + '.json?fields=id,name,code,description,outcomes[id,name],outputs[id,name],subProgramms[id,name,code,description,sortOrder,outputs[id,name],programm[id]]').then(function(response){               
+            var promise = $http.get('../api/programms/' + uid + '.json?fields=id,name,code,description,outcomes[id,name],outputs[id,name],subProgramms[id,name,code,description,sortOrder,outputs[id,name],programm[id]],attributeValues[value,attribute[id,name,code]]').then(function(response){               
                 return response.data;
             }, function(response){
                 RfUtils.errorNotifier(response);
@@ -332,7 +320,7 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
             return promise;
         },
         getAll: function(){            
-            var promise = $http.get('../api/programms.json?fields=id,name,code,description,outcomes[id,name],outputs[id,name],subProgramms[id,name,code,description,sortOrder,outputs[id,name],programm[id]]&paging=false').then(function(response){               
+            var promise = $http.get('../api/programms.json?fields=id,name,code,description,outcomes[id,name],outputs[id,name],subProgramms[id,name,code,description,sortOrder,outputs[id,name],programm[id]],attributeValues[value,attribute[id,name,code]]&paging=false').then(function(response){               
                 return response.data;
             }, function(response){
                 RfUtils.errorNotifier(response);
@@ -365,7 +353,7 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
     return {
         
         get: function(uid){            
-            var promise = $http.get('../api/subProgramms/' + uid + '.json?fields=id,name,code,description,sortOrder,programm[id],outputs[id,name],dataSets[id,name]').then(function(response){               
+            var promise = $http.get('../api/subProgramms/' + uid + '.json?fields=id,name,code,description,sortOrder,programm[id],outputs[id,name],dataSets[id,name],attributeValues[value,attribute[id,name,code]]').then(function(response){               
                 return response.data;
             }, function(response){
                 RfUtils.errorNotifier(response);
@@ -373,7 +361,7 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
             return promise;
         },
         getAll: function(){            
-            var promise = $http.get('../api/subProgramms.json?fields=id,name,code,description,sortOrder,program[id],outputs[id,name]&paging=false').then(function(response){               
+            var promise = $http.get('../api/subProgramms.json?fields=id,name,code,description,sortOrder,program[id],outputs[id,name],attributeValues[value,attribute[id,name,code]]&paging=false').then(function(response){               
                 return response.data;
             }, function(response){
                 RfUtils.errorNotifier(response);
@@ -406,7 +394,7 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
     return {
         
         get: function(uid){            
-            var promise = $http.get('../api/projects/' + uid + '.json?fields=id,name,code,totalCost,costByGovernment,costByLeadDonor,costByOthers,leadDonor,startDate,endDate,extensionPossible,description,contactName,contactPhone,contactEmail,status,budgetDataSet[id,name],subProgramms[id,name,code,description]').then(function(response){               
+            var promise = $http.get('../api/projects/' + uid + '.json?fields=id,name,code,totalCost,costByGovernment,costByLeadDonor,costByOthers,leadDonor,startDate,endDate,extensionPossible,description,contactName,contactPhone,contactEmail,status,budgetForecastDataSet[id,name],budgetExecutionDataSet[id,name],subProgramms[id,name,code,description],attributeValues[value,attribute[id,name,code]]').then(function(response){               
                 if( response.data.startDate && response.data.endDate){
                     response.data.startDate = DateUtils.formatFromApiToUser(response.data.startDate);
                     response.data.endDate = DateUtils.formatFromApiToUser(response.data.endDate);
@@ -418,7 +406,7 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
             return promise;
         },
         getAll: function(){            
-            var promise = $http.get('../api/projects.json?fields=id,name,code,totalCost,costByGovernment,costByLeadDonor,costByOthers,leadDonor,startDate,endDate,extensionPossible,description,contactName,contactPhone,contactEmail,status,budgetDataSet[id,name],subProgramms[id,name,code,description]&paging=false').then(function(response){
+            var promise = $http.get('../api/projects.json?fields=id,name,code,totalCost,costByGovernment,costByLeadDonor,costByOthers,leadDonor,startDate,endDate,extensionPossible,description,contactName,contactPhone,contactEmail,status,budgetForecastDataSet[id,name],budgetExecutionDataSet[id,name],subProgramms[id,name,code,description],attributeValues[value,attribute[id,name,code]]&paging=false').then(function(response){
                 if( response.data.projects ) {
                     angular.forEach(response.data.projects, function(pr){
                         pr.startDate = DateUtils.formatFromApiToUser(pr.startDate);
@@ -466,21 +454,34 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
     };    
 })
 
-.factory('MetaAttributesFactory', function($http, RfUtils) {
+.factory('MetaAttributesFactory', function($q, $rootScope, orderByFilter, RFStorageService) {
     
     return {
-        getProjectAttributes: function(){            
-            var promise = $http.get('../api/attributes.json?filter=projectAttribute:eq:true&fields=id,name,code,projectAttribute,valueType,optionSet[id,name,options[id,name,code]]&paging=false').then(function(response){               
-                return response.data;
-            }, function(response){
-                RfUtils.errorNotifier(response);
-            });            
-            return promise;
+        getAttributesForObject: function( obj ){            
+            var def = $q.defer();
+            
+            RFStorageService.currentStore.open().done(function(){
+                RFStorageService.currentStore.getAll('attributes').done(function(atts){
+                    var attributes = [];
+                    angular.forEach(atts, function(att){
+                        if( att.hasOwnProperty( obj ) && att[obj] ){
+                            attributes.push( att );
+                        }
+                    });                    
+                    
+                    attributes = orderByFilter(attributes, '-sortOrder').reverse();
+                    
+                    $rootScope.$apply(function(){
+                        def.resolve(attributes);
+                    });                    
+                });
+            });
+            return def.promise;
         }
     };    
 })
 
-.service('RfUtils', function($translate, DialogService){
+.service('RfUtils', function($translate, DialogService, ModalService){
 
     return {
         removeItems: function(bag, items){
@@ -500,6 +501,38 @@ var resultsFrameworkServices = angular.module('resultsFrameworkServices', ['ngRe
                 };		
                 DialogService.showDialog({}, dialogOptions);
             }
+        },
+        processMetaAttributes: function (attributes, attributeValues){            
+            var atts = [];
+            angular.forEach(attributes, function(att){
+                if(attributeValues[att.id]){
+                    atts.push({value: attributeValues[att.id], attribute: {id: att.id}});
+                }                
+            });            
+            return atts;
+        },
+        deleteFile: function(id, obj, fileNames){
+        
+            if( !id || !obj ){            
+                var dialogOptions = {
+                    headerText: 'error',
+                    bodyText: 'missing_file_identifier'
+                };
+                DialogService.showDialog({}, dialogOptions);
+                return;
+            }
+
+            var modalOptions = {
+                closeButtonText: 'cancel',
+                actionButtonText: 'remove',
+                headerText: 'remove',
+                bodyText: 'are_you_sure_to_remove'
+            };
+
+            ModalService.showModal({}, modalOptions).then(function(result){            
+                fileNames[id] = null;
+                obj[id] = null;
+            });
         }
     };
 });

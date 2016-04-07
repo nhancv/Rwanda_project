@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col-sm-6">
+    <div class="col-sm-8">
         <table class="dhis2-list-table-striped dhis2-table-hover">
             <tr>
                 <td>
@@ -52,6 +52,7 @@
                 </td>
             </tr>
         </table>
+        <div ng-include="'views/meta-attributes-form.html'"></div>
     </div>
 </div>
 
@@ -70,7 +71,7 @@
 
 <div class="row">
     <div class="col-sm-12">
-        <div ng-if="model.showEditProgramDiv && !model.selectedProgram.subProgramms || model.selectedProgram.subProgramms.length < 1" class="alert alert-warning vertical-spacing">
+        <div ng-if="model.showEditProgramDiv && (!model.selectedProgram.subProgramms || model.selectedProgram.subProgramms.length < 1)" class="alert alert-warning vertical-spacing">
             {{'no_sub_program_available'| translate}}
         </div>
         <div ng-if="model.showAddProgramDiv" class="alert alert-info vertical-spacing">

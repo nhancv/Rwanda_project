@@ -2,13 +2,9 @@
 
 //Controller for column show/hide
 resultsFramework.controller('LeftBarMenuController',
-        function($scope, $location) {
-    $scope.showPerformanceContract = function(){
-        selection.load();
-        $location.path('/').search();
-    }; 
-    
+        function($scope, $location) {    
     $scope.showResultsFramework = function(){
+        downloadMetaData();
         $location.path('/results-framework').search();
     };
     

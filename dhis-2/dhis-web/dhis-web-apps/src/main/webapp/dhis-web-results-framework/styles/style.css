@@ -133,8 +133,7 @@ div.paging a.active
     float: left;
 }
 
-.bordered-div
-{
+.bordered-div {
     border: 1px solid #c2c2c2;
     border-radius: 5px;
     padding: 12px;
@@ -276,13 +275,17 @@ div#leftBar {
     float: left; 
 }
 
-.modal-full-window {
-    width: 80%;
-    height: 80%;
+.modal-full-window .modal-dialog {
+    width: 100%;
+    height: 100%;
+}
+
+.modal {
+    padding-top: 50px;
 }
 
 .modal-dialog {
-    margin-top: 50px;
+    top: 50%;
 }
 
 #map-container { 
@@ -625,8 +628,8 @@ div#orgUnitTree {
 .impact-row {
     font-weight: bold;
     font-size: 16px !important;
-    color: #fff;
-    background-color: #337ab7;
+    color: #000;
+    background-color: #ccc;
 }
 
 .impact-indicator-row {
@@ -637,8 +640,8 @@ div#orgUnitTree {
 .outcome-row {
     font-weight: bold;
     font-size: 16px !important;
-    color: #fff;
-    background-color: #5cb85c;
+    color: #000;    
+    background-color: #ccc;
 }
 
 .outcome-indicator-row {
@@ -658,15 +661,15 @@ div#orgUnitTree {
 .program-row {
     font-weight: bold;
     font-size: 16px !important;
-    color: #fff;
-    background-color: #5bc0de;
+    color: #000;
+    background-color: #ccc;
 }
 
 .program-outcome-row {
     font-weight: bold;
     font-size: 14px !important;
-    color: #000;/*#fff; */
-    background-color: #ccc;/*#5cb85c; */
+    color: #000;
+    background-color: #ccc;
     padding-left: 20px;
 }
 
@@ -678,15 +681,15 @@ div#orgUnitTree {
 .subprogram-row {
     font-size: 14px !important;
     font-weight: bold;
-    color: #000;/*#fff;*/
-    background-color: #ccc;/*#f0ad4e;*/
+    color: #000;
+    background-color: #ccc;
     padding-left: 20px;
 }
 
 .subprogram-output-row {
     font-weight: bold;
-    color: #000;/*#fff;*/
-    background-color: #ccc;/*#d9534f;*/
+    color: #000;
+    background-color: #ccc;
     padding-left: 40px;
 }
 

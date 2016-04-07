@@ -100,9 +100,9 @@
                             theme="select2" 
                             name="leadDonor"
                             style="width:100%;">
-                        <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{'select_or_search' | translate}}">{{$select.selected.name  || $select.selected}}</ui-select-match>
-                        <ui-select-choices  repeat="option.name as option in model.donorList | filter: $select.search | limitTo:maxOptionSize">
-                            <span ng-bind-html="option.name | highlight: $select.search"></span>
+                        <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{'select_or_search' | translate}}">{{$select.selected.displayName  || $select.selected}}</ui-select-match>
+                        <ui-select-choices  repeat="option.displayName as option in model.donorList | filter: $select.search | limitTo:maxOptionSize">
+                            <span ng-bind-html="option.displayName | highlight: $select.search"></span>
                         </ui-select-choices>
                     </ui-select>
                     <div ng-messages="projectForm.leadDonor.$error" ng-if="interacted(projectForm.leadDonor, projectForm)" class="required hideInPrint" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html"></div>
@@ -237,19 +237,35 @@
             </tr>
             <tr>
                 <td>
-                    {{'budget_data_set' | translate}}
+                    {{'budget_forecast_data_set' | translate}}
                 </td>
                 <td>
-                    <ui-select ng-model="model.selectedProject.budgetDataSet" 
+                    <ui-select ng-model="model.selectedProject.budgetForecastDataSet" 
                             theme="select2" 
                             style="width:100%;">
                         <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{'select_or_search' | translate}}">{{$select.selected.name  || $select.selected}}</ui-select-match>
-                        <ui-select-choices  repeat="dataSet in model.budgetDataSets | filter: $select.search | limitTo:maxOptionSize">
+                        <ui-select-choices  repeat="dataSet in model.budgetForecastDataSets | filter: $select.search | limitTo:maxOptionSize">
+                            <span ng-bind-html="dataSet.name | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    {{'budget_execution_data_set' | translate}}
+                </td>
+                <td>
+                    <ui-select ng-model="model.selectedProject.budgetExecutionDataSet" 
+                            theme="select2" 
+                            style="width:100%;">
+                        <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{'select_or_search' | translate}}">{{$select.selected.name  || $select.selected}}</ui-select-match>
+                        <ui-select-choices  repeat="dataSet in model.budgetExecutionDataSets | filter: $select.search | limitTo:maxOptionSize">
                             <span ng-bind-html="dataSet.name | highlight: $select.search"></span>
                         </ui-select-choices>
                     </ui-select>
                 </td>
             </tr>
         </table>
+        <div ng-include="'views/meta-attributes-form.html'"></div>
     </div>
 </div>
