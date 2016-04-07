@@ -43,16 +43,18 @@ public interface FileResourceService
 
     List<FileResource> getFileResources( List<String> uids );
 
+    List<FileResource> getAllFileResources();
+
     List<FileResource> getOrphanedFileResources();
 
     String saveFileResource( FileResource fileResource, File file );
 
     void deleteFileResource( String uid );
-    
+
     ByteSource getFileResourceContent( FileResource fileResource );
-    
+
     boolean fileResourceExists( String uid );
-    
+
     void updateFileResource( FileResource fileResource );
 
     URI getSignedGetFileResourceContentUri( String uid );
